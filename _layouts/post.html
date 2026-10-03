@@ -1,0 +1,9 @@
+---
+layout: default
+---
+<article class="post">
+  <p class="eyebrow">학습 기록 · <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y.%m.%d' }}</time></p>
+  <h1>{{ page.title | escape }}</h1>
+  {{ content }}
+  <a class="back-link" href="{{ '/' | relative_url }}">← 전체 기록 보기</a>
+</article>
