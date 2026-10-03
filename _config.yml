@@ -1,0 +1,14 @@
+title: AX Study
+description: 배우고 실험하며 기록하는 AX 학습 노트
+url: https://hkkoo.github.io
+baseurl: /ax-study
+lang: ko
+timezone: Asia/Seoul
+markdown: kramdown
+permalink: /posts/:title/
+exclude:
+  - README.md
+  - AGENTS.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor

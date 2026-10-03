@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="{{ site.lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} · {{ site.title | escape }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
+    <nav aria-label="주 메뉴">
+      <a href="{{ '/' | relative_url }}">홈</a>
+      <a href="{{ '/about/' | relative_url }}">소개</a>
+      <a href="https://github.com/hkkoo/ax-study">GitHub</a>
+    </nav>
+  </header>
+  <main>{{ content }}</main>
+  <footer>{{ site.title | escape }} · Jekyll &amp; GitHub Pages로 만든 학습 기록</footer>
+</body>
+</html>
