@@ -15,4 +15,26 @@
     try { localStorage.setItem('ax-study-theme', root.dataset.theme); } catch (error) {}
     updateThemeButton();
   });
+
+  const filters = [...document.querySelectorAll('.filter-button')];
+  const cards = [...document.querySelectorAll('.project-card')];
+  const count = document.querySelector('.filter-count');
+
+  filters.forEach((filter) => {
+    filter.addEventListener('click', () => {
+      const selected = filter.dataset.filter;
+      filters.forEach((button) => {
+        const active = button === filter;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      let visible = 0;
+      cards.forEach((card) => {
+        const show = selected === 'all' || card.dataset.category === selected;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      if (count) count.textContent = `${visible}개 항목`;
+    });
+  });
 })();

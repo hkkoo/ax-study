@@ -13,6 +13,7 @@
   <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">본문으로 바로가기</a>
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="{{ '/' | relative_url }}" aria-label="AX Study 홈">
@@ -20,7 +21,7 @@
       </a>
       <div class="header-tools">
         <nav aria-label="주 메뉴">
-          <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}>작업대</a>
+          <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}>홈</a>
           <a href="{{ '/portfolio/' | relative_url }}" {% if page.url == '/portfolio/' %}aria-current="page"{% endif %}>실험 노트</a>
           <a href="{{ '/about/' | relative_url }}" {% if page.url == '/about/' %}aria-current="page"{% endif %}>소개</a>
         </nav>
@@ -29,13 +30,13 @@
       </div>
     </div>
   </header>
-  <main class="site-main">
+  <main class="site-main" id="main-content" tabindex="-1">
     {% if page.url == '/' %}
       {{ content }}
     {% else %}
       <div class="content-shell">{{ content }}</div>
     {% endif %}
   </main>
-  <footer class="site-footer"><div class="shell"><span>AX STUDY · LEARN, BUILD, VERIFY</span><span>일의 틈에서 다음 실험을 찾습니다.</span></div></footer>
+  <footer class="site-footer"><div class="shell"><span>AX STUDY · LEARN, BUILD, VERIFY</span><span>AI 학습 · 프로젝트 수행 · 결과 검증</span></div></footer>
 </body>
 </html>
