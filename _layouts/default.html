@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3f5fb">
+  <meta name="theme-color" content="#f8f8f4">
   <title>{{ page.title | escape }} · {{ site.title | escape }}</title>
   <meta name="description" content="{{ page.description | default: site.description | escape }}">
   <script>
@@ -20,8 +20,8 @@
       </a>
       <div class="header-tools">
         <nav aria-label="주 메뉴">
-          <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}>홈</a>
-          <a href="{{ '/portfolio/' | relative_url }}" {% if page.url == '/portfolio/' %}aria-current="page"{% endif %}>기획 노트</a>
+          <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}>작업대</a>
+          <a href="{{ '/portfolio/' | relative_url }}" {% if page.url == '/portfolio/' %}aria-current="page"{% endif %}>실험 노트</a>
           <a href="{{ '/about/' | relative_url }}" {% if page.url == '/about/' %}aria-current="page"{% endif %}>소개</a>
         </nav>
         <a class="github-link" href="https://github.com/hkkoo/ax-study">GitHub <span aria-hidden="true">↗</span></a>
@@ -36,6 +36,6 @@
       <div class="content-shell">{{ content }}</div>
     {% endif %}
   </main>
-  <footer class="site-footer"><div class="shell"><span>AX STUDY · LEARN, BUILD, VERIFY</span><span>배우고 실험한 내용을 기록합니다.</span></div></footer>
+  <footer class="site-footer"><div class="shell"><span>AX STUDY · LEARN, BUILD, VERIFY</span><span>일의 틈에서 다음 실험을 찾습니다.</span></div></footer>
 </body>
 </html>

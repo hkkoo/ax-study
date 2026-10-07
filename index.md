@@ -1,110 +1,76 @@
 ---
 layout: default
-title: 홈
-description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정과 검증 결과까지 기록합니다.
+title: 작업대
+description: 일하다 남은 물음표들을 발견하고, AI로 실험하고, 다시 읽을 수 있는 노트로 남기는 개인 작업실.
 ---
-<div class="portfolio-home">
-  <section class="hero shell" aria-labelledby="hero-title">
-    <div class="hero-copy">
-      <div class="hero-kickers">
-        <span class="eyebrow">AX STUDY · OPEN LEARNING LOG</span>
-        <span class="status-pill"><span class="status-dot"></span> 첫 실험 준비 중</span>
-      </div>
-      <h1 id="hero-title">AI를 배우고,<br>작게 만들어,<br><span>확인한 만큼 기록합니다.</span></h1>
-      <p class="hero-description">개인 프로젝트와 반복 업무의 작은 불편을 AI로 풀어봅니다. 결과뿐 아니라 선택한 방법, 실패와 수정, 직접 검증한 내용도 함께 남깁니다.</p>
-      <div class="hero-actions">
-        <a class="button button-primary" href="#projects">프로젝트 살펴보기 <span aria-hidden="true">↘</span></a>
-        <a class="text-link" href="#journal">학습 기록 읽기 <span aria-hidden="true">→</span></a>
-      </div>
-      <p class="hero-meta"><span>관심 주제</span> 생성형 AI · 검색 · 업무 자동화</p>
-    </div>
-    <aside class="current-project" aria-label="현재 준비 중인 실험">
-      <div class="panel-topline"><span>NOW EXPLORING</span><span class="panel-index">01 / 03</span></div>
-      <p class="panel-label">첫 번째 실험</p>
-      <h2>내 학습 노트<br>Q&amp;A</h2>
-      <p class="panel-description">내가 정리한 Markdown 노트에서 답을 찾고, 근거가 된 문장을 함께 보여줄 수 있을까?</p>
-      <div class="panel-rule"></div>
-      <div class="panel-plan"><span>실험 계획</span><strong>노트 10개 · 질문 20개</strong></div>
-      <a href="{{ '/portfolio/' | relative_url }}" class="panel-link">기획과 검증 기준 보기 <span aria-hidden="true">↗</span></a>
-      <span class="panel-orbit orbit-one" aria-hidden="true"></span>
-      <span class="panel-orbit orbit-two" aria-hidden="true"></span>
-    </aside>
-  </section>
+<div class="studio-shell">
+  <aside class="studio-rail" aria-label="작업대 목차">
+    <a class="rail-name" href="#opening">FIELD<br>NOTES<span>by AX Study</span></a>
+    <p class="rail-caption">일의 틈을 관찰하는<br>AI 작업실</p>
+    <nav class="rail-nav" aria-label="첫 페이지 목차">
+      <a href="#opening"><span>00</span> 작업실 입구</a>
+      <a href="#experiments"><span>01</span> 펼쳐 보는 실험</a>
+      <a href="#method"><span>02</span> 기록하는 방식</a>
+      <a href="#journal"><span>03</span> 남겨 둔 노트</a>
+    </nav>
+    <p class="rail-footnote">작은 질문을 오래 들여다보는 중.</p>
+  </aside>
 
-  <section class="shell metrics" aria-label="포트폴리오 현황">
-    <div class="metric-card metric-highlight"><span class="metric-label">프로젝트 후보</span><strong>03</strong><span class="metric-caption">작게 시작할 실험</span></div>
-    <div class="metric-card"><span class="metric-label">구현 완료</span><strong>00</strong><span class="metric-caption">아직 공개 전</span></div>
-    <div class="metric-card"><span class="metric-label">검증 완료</span><strong>00</strong><span class="metric-caption">측정 후 기록 예정</span></div>
-    <div class="metric-card"><span class="metric-label">학습 기록</span><strong>{{ site.posts | size }}</strong><span class="metric-caption">실험과 제작 과정</span></div>
-  </section>
+  <div class="studio-content">
+    <header class="studio-opening" id="opening">
+      <div class="studio-overline"><span>PERSONAL WORKBENCH</span><span class="studio-state">실험 설계 중</span></div>
+      <h1>일하다 남은<br><em>물음표들.</em></h1>
+      <p class="studio-lead">“지난번처럼”의 지난번은 언제일까?<br>며칠 전 멈춘 일은 어디서 다시 시작해야 할까?</p>
+      <p class="studio-intro">별것 아닌 듯 지나친 불편을 하나씩 꺼내봅니다. AI를 곁에 두고 다른 방법을 시도하며, 도움이 된 순간과 직접 고쳐야 했던 부분을 기록하려 합니다.</p>
+      <div class="studio-margin-note"><span aria-hidden="true">↳</span><p>지금은 세 가지 실험을 설계하고 있습니다.<br>완성된 결과는 확인한 순서대로 이 작업대에 놓겠습니다.</p></div>
+      <a class="studio-scroll" href="#experiments">첫 노트 펼치기 <span aria-hidden="true">↓</span></a>
+      <span class="studio-question" aria-hidden="true">?</span>
+    </header>
 
-  <section class="shell projects-section" id="projects" aria-labelledby="projects-title">
-    <div class="section-heading">
-      <div><p class="eyebrow">IDEAS TO EXPERIMENTS</p><h2 id="projects-title">만들어 볼 것들</h2></div>
-      <a class="section-link" href="{{ '/portfolio/' | relative_url }}">전체 기획 보기 <span aria-hidden="true">↗</span></a>
-    </div>
-    <p class="section-intro">완성된 성과 목록이 아니라, 다음에 직접 만들어 검증할 아이디어입니다.</p>
-    <div class="filter-bar" role="group" aria-label="프로젝트 분류">
-      <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">전체 <span>04</span></button>
-      <button class="filter-button" type="button" data-filter="personal" aria-pressed="false">개인 프로젝트 <span>02</span></button>
-      <button class="filter-button" type="button" data-filter="automation" aria-pressed="false">업무 자동화 <span>01</span></button>
-      <button class="filter-button" type="button" data-filter="learning" aria-pressed="false">학습·조사 <span>01</span></button>
-      <span class="filter-count" aria-live="polite">4개 항목</span>
-    </div>
-
-    <div class="project-grid">
-      <article class="project-card card-featured" data-category="personal">
-        <div class="card-top"><span class="category-label label-personal">개인 프로젝트</span><span class="project-status">기획</span></div>
-        <div><p class="project-number">PROJECT 01</p><h3>내 학습 노트 Q&amp;A</h3></div>
-        <p class="project-summary">쌓여가는 학습 노트에서 답을 찾고, 답변마다 참고한 문단을 확인하는 작은 검색 도구.</p>
-        <div class="card-tags"><span>Markdown</span><span>검색 비교</span><span>출처 확인</span></div>
-        <div class="card-bottom"><span>예정 결과물 <b>질문·답변 평가표</b></span><a href="{{ '/portfolio/' | relative_url }}">기획 보기 <span aria-hidden="true">↗</span></a></div>
-      </article>
-
-      <article class="project-card" data-category="automation">
-        <div class="card-top"><span class="category-label label-automation">업무 자동화</span><span class="project-status">기획</span></div>
-        <div><p class="project-number">PROJECT 02</p><h3>링크에서 학습 브리핑 만들기</h3></div>
-        <p class="project-summary">공개 글 몇 편의 공통점과 차이를 출처 링크와 함께 정리하고, 사람이 검토하는 시간을 측정합니다.</p>
-        <div class="card-tags"><span>요약</span><span>출처 추적</span><span>시간 비교</span></div>
-        <div class="card-bottom"><span>예정 결과물 <b>브리핑 예시</b></span><a href="{{ '/portfolio/' | relative_url }}">기획 보기 <span aria-hidden="true">↗</span></a></div>
-      </article>
-
-      <article class="project-card" data-category="personal">
-        <div class="card-top"><span class="category-label label-personal">개인 프로젝트</span><span class="project-status">기획</span></div>
-        <div><p class="project-number">PROJECT 03</p><h3>학습 노트를 설명 카드로</h3></div>
-        <p class="project-summary">하나의 노트를 짧은 설명 카드로 바꿔보고, 사실 정확성과 모바일 가독성을 직접 점검합니다.</p>
-        <div class="card-tags"><span>콘텐츠 제작</span><span>한글 가독성</span><span>사람의 수정</span></div>
-        <div class="card-bottom"><span>예정 결과물 <b>수정 전·후 카드</b></span><a href="{{ '/portfolio/' | relative_url }}">기획 보기 <span aria-hidden="true">↗</span></a></div>
-      </article>
-
-      <article class="project-card card-journal" data-category="learning">
-        <div class="card-top"><span class="category-label label-learning">학습·조사</span><span class="project-status status-done">기록 완료</span></div>
-        <div><p class="project-number">FIELD NOTE 01</p><h3>Reddit 사례로 포트폴리오 방향 잡기</h3></div>
-        <p class="project-summary">프로젝트 소개 사례를 살펴보고, 결과물·방법·실패를 함께 공개하는 기록 기준을 정했습니다.</p>
-        <div class="card-tags"><span>사례 조사</span><span>기록 설계</span></div>
-        <div class="card-bottom"><span>학습 기록 <b>2026.10.07</b></span><a href="{{ '/posts/ai-portfolio-plan/' | relative_url }}">기록 읽기 <span aria-hidden="true">↗</span></a></div>
-      </article>
-    </div>
-  </section>
-
-  <section class="journal-section" id="journal" aria-labelledby="journal-title">
-    <div class="shell">
-      <div class="section-heading">
-        <div><p class="eyebrow">NOTES FROM THE PROCESS</p><h2 id="journal-title">최근 학습 기록</h2></div>
-        <span class="section-aside">배운 내용과 만든 과정을 차곡차곡</span>
-      </div>
-      <div class="journal-list">
-        {% for post in site.posts %}
-        <a class="journal-row" href="{{ post.url | relative_url }}">
-          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y.%m.%d' }}</time>
-          <span class="journal-copy"><strong>{{ post.title | escape }}</strong><small>{{ post.description | escape }}</small></span>
-          <span class="journal-arrow" aria-hidden="true">↗</span>
-        </a>
-        {% else %}
-        <p class="empty-state">첫 학습 기록을 준비하고 있습니다.</p>
+    <section class="studio-section" id="experiments" aria-labelledby="experiments-heading">
+      <div class="studio-section-label"><span>01 / OPEN QUESTIONS</span><span>접힌 제목을 눌러 펼쳐보세요</span></div>
+      <h2 id="experiments-heading">답보다 먼저,<br>질문을 다듬는 시간.</h2>
+      <p class="studio-section-intro">실험마다 가상의 입력을 먼저 만들었습니다. 무엇을 얻고 싶은지, 무엇이 나오면 실패인지 함께 적어둡니다.</p>
+      <div class="experiment-folds">
+        {% for experiment in site.data.experiments %}
+        <details class="experiment-fold"{% if forloop.first %} open{% endif %}>
+          <summary><span class="fold-number">{{ experiment.number }}</span><span class="fold-title"><strong>{{ experiment.title }}</strong><small>{{ experiment.category_label }} · 기획</small></span><span class="fold-sign" aria-hidden="true">+</span></summary>
+          <div class="fold-content">
+            <h3>{{ experiment.question }}</h3>
+            <p>{{ experiment.summary }}</p>
+            <blockquote><span>가상의 입력 한 조각</span><p>{{ experiment.input }}</p></blockquote>
+            <dl class="fold-notes"><div><dt>확인하고 싶은 것</dt><dd>{{ experiment.hypothesis }}</dd></div><div><dt>남길 결과물</dt><dd>{{ experiment.artifact }}</dd></div></dl>
+            <a class="text-link" href="{{ '/portfolio/' | relative_url }}#{{ experiment.id }}">기대 결과와 실패 기준 읽기 <span aria-hidden="true">↗</span></a>
+          </div>
+        </details>
         {% endfor %}
       </div>
-    </div>
-  </section>
-  <div class="shell closing-note"><span class="closing-mark" aria-hidden="true">✳</span><p>작은 실험 하나씩, 결과와 근거를 더해갑니다.</p><a href="https://github.com/hkkoo/ax-study">GitHub에서 변경 기록 보기 ↗</a></div>
+    </section>
+
+    <section class="studio-section method-section" id="method" aria-labelledby="method-heading">
+      <div class="studio-section-label"><span>02 / WORKING METHOD</span></div>
+      <div class="method-layout">
+        <h2 id="method-heading">멋진 답이 나와도<br>한 번 더.</h2>
+        <div class="method-copy"><p>잘 읽히는 문장이 실제로 쓸 수 있는 답인지 확인해보려 합니다. 입력과 출력 사이에 무엇이 달라졌는지, 사람이 어디에 손을 댔는지를 살펴봅니다.</p>
+          <ol class="method-steps"><li><strong>멈칫한 장면 고르기</strong><span>되묻거나 다시 찾게 되는 순간에서 시작합니다.</span></li><li><strong>같은 입력을 나란히 놓기</strong><span>기존 방식과 AI의 제안을 비교합니다.</span></li><li><strong>고친 흔적까지 남기기</strong><span>실패한 출력과 수정 이유를 다음 실험의 재료로 씁니다.</span></li></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-section studio-journal" id="journal" aria-labelledby="journal-heading">
+      <div class="studio-section-label"><span>03 / NOTEBOOK</span><span>{{ site.posts | size }}개의 기록</span></div>
+      <h2 id="journal-heading">생각이 바뀐 자리에도<br>표시를 남깁니다.</h2>
+      <ol class="note-timeline">
+        {% for post in site.posts %}
+        <li class="note-entry">
+          <div class="note-date"><time datetime="{{ post.date | date_to_xmlschema }}"><span>{{ post.date | date: '%m.%d' }}</span><small>{{ post.date | date: '%Y' }}</small></time></div>
+          <article class="note-body"><p class="note-index">NOTE {{ forloop.index }}</p><h3><a href="{{ post.url | relative_url }}">{{ post.title | escape }} <span aria-hidden="true">↗</span></a></h3><p>{{ post.description | escape }}</p></article>
+        </li>
+        {% else %}
+        <li class="note-empty">첫 관찰을 적을 노트를 펼쳐두었습니다.</li>
+        {% endfor %}
+      </ol>
+    </section>
+    <aside class="studio-endnote"><span aria-hidden="true">↳</span><p>다음 실험의 재료는,<br><strong>오늘 다시 물었던 질문 하나.</strong></p><a href="https://github.com/hkkoo/ax-study">변경 이력 보기 ↗</a></aside>
+  </div>
 </div>
