@@ -1,12 +1,14 @@
 # AX Study
 
-Jekyll과 GitHub Pages로 운영하는 한국어 학습 블로그입니다.
+AI 학습과 결과물을 기록하는 한국어 포트폴리오입니다. Jekyll과 GitHub Pages로 운영합니다.
 사이트: https://hkkoo.github.io/ax-study/
 
 ## 구성
 
 - `_config.yml`: 사이트 이름, 주소, 글 URL 설정
 - `index.md`, `about.md`: 홈과 소개
+- `portfolio.md`: 프로젝트 후보, 진행 상태, 결과물 공개 기준
+- `docs/`: 프로젝트·학습 기록 작성 양식 (사이트 빌드에서 제외)
 - `_posts/`: 날짜별 Markdown 학습 기록
 - `_layouts/`: 공통 HTML 레이아웃
 - `assets/css/`: 반응형 스타일

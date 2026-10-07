@@ -3,10 +3,10 @@ layout: default
 title: 홈
 ---
 <section class="hero">
-  <p class="eyebrow">LEARN · EXPERIMENT · SHARE</p>
-  <h1>배우고 실험하며,<br>작은 변화를 기록합니다.</h1>
+  <p class="eyebrow">LEARN · BUILD · VERIFY</p>
+  <h1>AI를 배우고 만들며,<br>결과로 기록합니다.</h1>
   <p>{{ site.description | escape }}</p>
-  <a class="button" href="{{ '/about/' | relative_url }}">AX Study 소개 →</a>
+  <a class="button" href="{{ '/portfolio/' | relative_url }}">AI 포트폴리오 보기 →</a>
 </section>
 <section aria-labelledby="posts-heading">
   <h2 id="posts-heading">최근 학습 기록</h2>
