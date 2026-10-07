@@ -14,6 +14,30 @@ const out = process.env.QA_OUTPUT || path.join(require('node:os').tmpdir(), 'ax-
   try {
     await page.goto(base);
     await page.locator('.project-card').first().waitFor();
+    const travelCard = page.locator('.showcase-card a[href$="/travel/jeonju-gunsan/"]');
+    assert.equal(await travelCard.count(), 1, 'home must contain one public travel card');
+    const travelUrl = await travelCard.getAttribute('href');
+    const travelResponse = await page.goto(new URL(travelUrl, base).href);
+    assert.equal(travelResponse.status(), 200);
+    assert.equal(await page.locator('#day1').count(), 1);
+    assert.equal(await page.locator('#day2').count(), 1);
+    const travelText = await page.locator('body').innerText();
+    assert.match(travelText, /첫째 날/);
+    assert.match(travelText, /둘째 날/);
+    assert.doesNotMatch(travelText, /\b20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\b|\d{1,2}\s*월\s*\d{1,2}\s*일|\d{1,2}:\d{2}|체크인|체크아웃|호텔|예약번호|동행인\s*[:：]|출발지\s*[:：]/i, 'public travel page must omit private itinerary details');
+    const travelHtml = await page.content();
+    assert.doesNotMatch(travelHtml, /20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/i, 'must not embed calendar dates in metadata');
+    assert.equal(await page.locator('.travel-page img').count(), 0, 'public page uses an inline illustration, not imported image assets');
+    await page.locator('.theme-toggle').click();
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+    await page.screenshot({ path: path.join(out, 'travel-dark.png'), fullPage: true, animations: 'disabled' });
+    await page.locator('.theme-toggle').click();
+    for (const width of [1440, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `travel overflow at ${width}px`);
+      await page.screenshot({ path: path.join(out, `travel-${width}.png`), fullPage: true, animations: 'disabled' });
+    }
+    await page.goto(base);
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').getAttribute('href'), '#main-content', 'first keyboard stop must skip navigation');
     await page.keyboard.press('Enter');
@@ -55,6 +79,6 @@ const out = process.env.QA_OUTPUT || path.join(require('node:os').tmpdir(), 'ax-
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${route} overflow`);
     }
     assert.deepEqual(errors, []);
-    console.log('PASS: project filters, theme persistence, four viewport sizes, internal links, detail pages, no JS errors');
+    console.log('PASS: public travel card and privacy, first/second day page, project filters, theme persistence, four viewport sizes, internal links, detail pages, no JS errors');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
