@@ -1,13 +1,14 @@
 # AX Study
 
-AI 학습과 결과물을 기록하는 한국어 포트폴리오입니다. Jekyll과 GitHub Pages로 운영합니다.
+일의 빈틈을 관찰하는 AI 실험 포트폴리오입니다. Jekyll과 GitHub Pages로 운영합니다.
 사이트: https://hkkoo.github.io/ax-study/
 
 ## 구성
 
 - `_config.yml`: 사이트 이름, 주소, 글 URL 설정
-- `index.md`, `about.md`: 홈과 소개
-- `portfolio.md`: 프로젝트 후보, 진행 상태, 결과물 공개 기준
+- `index.md`, `about.md`: 목차·접이식 실험 노트·날짜별 기록으로 구성한 작업대와 소개
+- `_data/experiments.json`: 홈과 상세 노트에 함께 사용하는 실험 기획
+- `portfolio.md`: 가상 입력, 기대 결과, 비교 방법을 담은 실험 설계 노트
 - `docs/`: 프로젝트·학습 기록 작성 양식 (사이트 빌드에서 제외)
 - `_posts/`: 날짜별 Markdown 학습 기록
 - `_layouts/`: 공통 HTML 레이아웃
