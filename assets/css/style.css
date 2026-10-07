@@ -106,7 +106,7 @@ button { font: inherit; }
 .filter-button.is-active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(20,35,26,.09); }
 .filter-count { margin-left: auto; padding-inline: 10px; color: var(--muted); font-size: 10px; }
 .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
-.project-card { display: flex; min-height: 274px; flex-direction: column; gap: 12px; padding: 21px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); transition: border-color .16s, transform .16s, box-shadow .16s; }
+.project-card, .showcase-card { display: flex; min-height: 274px; flex-direction: column; gap: 12px; padding: 21px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); transition: border-color .16s, transform .16s, box-shadow .16s; }
 .project-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--green) 47%, var(--line)); box-shadow: var(--shadow); }
 .project-card[hidden] { display: none; }
 .card-featured { background: linear-gradient(135deg, var(--surface), var(--green-wash)); }
@@ -121,7 +121,7 @@ button { font: inherit; }
 .project-status { padding: 3px 8px; font-size: 9px; }
 .status-done { border-color: color-mix(in srgb, var(--green) 24%, var(--line)); background: var(--green-wash); color: var(--green); }
 .project-number { margin: 2px 0 4px; color: var(--muted); font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .12em; }
-.project-card h3 { margin: 0; font-size: 17px; font-weight: 750; letter-spacing: -.035em; line-height: 1.4; }
+.project-card h3, .showcase-card h3 { margin: 0; font-size: 17px; font-weight: 750; letter-spacing: -.035em; line-height: 1.4; }
 .project-summary { min-height: 43px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .card-tags span { padding: 3px 8px; border-radius: 7px; background: var(--surface-soft); color: var(--muted); font-size: 9px; font-weight: 600; }
@@ -148,6 +148,46 @@ button { font: inherit; }
 .site-footer { border-top: 1px solid var(--line); color: var(--muted); }
 .site-footer .shell { display: flex; justify-content: space-between; gap: 20px; padding-block: 21px; font-size: 9px; }
 .site-footer .shell span:first-child { font-family: ui-monospace, monospace; letter-spacing: .1em; }
+
+/* Public travel showcase: no calendar, lodging or private assets. */
+.showcase-section { padding-bottom: 72px; }
+.showcase-card { min-height: 220px; }
+.travel-page { overflow-wrap: anywhere; }
+.travel-hero h1 { margin: 18px 0; font-size: clamp(34px, 6vw, 58px); line-height: 1.18; letter-spacing: -.06em; }
+.travel-hero h1 span { color: var(--green); }
+.travel-page .travel-lead { font-size: 16px; }
+.travel-illustration { margin: 28px 0; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--green-wash); color: var(--green); }
+.travel-illustration svg { display: block; width: 100%; height: auto; }
+.travel-page .travel-public-note { padding-left: 15px; border-left: 3px solid var(--green); font-size: 12px; }
+.travel-day-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 32px 0 46px; }
+.travel-day-nav a { display: grid; gap: 5px; padding: 18px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); text-decoration: none; }
+.travel-day-nav a:hover { background: var(--green-wash); }
+.travel-day-nav span { color: var(--muted); font-size: 11px; }
+.travel-day-nav strong { font-size: 14px; }
+.travel-day { padding-block: 16px 38px; }
+.travel-day + .travel-day { padding-top: 36px; border-top: 1px solid var(--line); }
+.travel-day-heading h2 { margin: 9px 0; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.04em; }
+.travel-place-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 22px; }
+.travel-place { padding: 23px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.travel-place-number { color: var(--green); font-family: ui-monospace, monospace; font-size: 12px; }
+.travel-place h3 { margin: 9px 0; font-size: 18px; }
+.travel-page .travel-place p { font-size: 13px; }
+.travel-place-tag { color: var(--muted); font-size: 11px; }
+.travel-place-sea { background: var(--green-wash); }
+.travel-observation { margin: 20px 0; padding: 17px 20px; border-left: 3px solid var(--amber); background: var(--surface-soft); }
+.travel-observation strong { font-size: 12px; }
+.travel-page .travel-observation p { margin-bottom: 0; font-size: 13px; }
+.travel-source-links { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+.travel-note { margin-top: 12px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.travel-note h2 { margin: 12px 0; font-size: 22px; }
+.travel-page .button-primary { color: #f5f7ff; }
+@media (max-width: 520px) {
+  .travel-place-grid, .travel-day-nav { grid-template-columns: 1fr; }
+  .travel-day-nav { gap: 8px; }
+  .travel-place, .travel-note { padding: 18px; }
+  .showcase-card { padding: 17px; }
+  .showcase-section { padding-bottom: 48px; }
+}
 
 /* Long-form learning and project notes */
 .content-shell { width: min(800px, calc(100% - 48px)); margin: 0 auto; padding-block: 54px 80px; }

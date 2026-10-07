@@ -66,6 +66,18 @@ description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정
     </div>
   </section>
 
+  <section class="shell showcase-section" id="showcase" aria-labelledby="showcase-title">
+    <div class="section-heading"><div><p class="eyebrow">BUILT PAGES</p><h2 id="showcase-title">만든 페이지</h2></div></div>
+    <p class="section-intro">기획 중인 실험과 별도로, 직접 만든 공개용 페이지를 모았습니다.</p>
+    <article class="showcase-card card-featured">
+      <div class="card-top"><span class="category-label">개인 프로젝트</span><span class="project-status status-done">공개용 페이지</span></div>
+      <div><p class="project-number">TRAVEL PAGE</p><h3>전주·군산 여행 페이지</h3></div>
+      <p class="project-summary">첫째 날 전주, 둘째 날 군산과 선유도. 실제 날짜와 예약 정보 없이 장소 후보를 일차별로 정리한 여행 페이지입니다.</p>
+      <div class="card-tags"><span>여행 페이지</span><span>일차별 구성</span><span>개인정보 제외</span></div>
+      <div class="card-bottom"><span>산출물 <b>공개용 여행 가이드</b></span><a href="{{ '/travel/jeonju-gunsan/' | relative_url }}">여행 페이지 보기 <span aria-hidden="true">↗</span></a></div>
+    </article>
+  </section>
+
   <section class="journal-section" id="journal" aria-labelledby="journal-title">
     <div class="shell">
       <div class="section-heading">
