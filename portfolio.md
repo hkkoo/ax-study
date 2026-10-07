@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 실험 설계 노트
-description: 인수인계의 빈칸, 이어하기 버튼, 설명 충돌 실험의 입력 예시와 비교 방법.
+description: 인수인계 정보 누락 점검, 작업 재개 정보 정리, 대상별 설명의 의미 보존 평가를 위한 실험 계획.
 permalink: /portfolio/
 ---
 # 실험 설계 노트
@@ -52,4 +52,4 @@ permalink: /portfolio/
 좋아 보이는 답이 나온 사례뿐 아니라, 다시 맡기기 어려웠던 사례도 적습니다.
 시간을 비교할 때는 입력 준비와 검토·수정에 걸린 시간까지 포함합니다.
 
-[실험 기록 양식](https://github.com/hkkoo/ax-study/blob/main/docs/project-template.md) · [작업실 홈]({{ '/' | relative_url }})
+[실험 기록 양식](https://github.com/hkkoo/ax-study/blob/main/docs/project-template.md) · [포트폴리오 홈]({{ '/' | relative_url }})
