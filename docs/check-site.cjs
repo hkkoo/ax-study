@@ -14,6 +14,30 @@ const out = process.env.QA_OUTPUT || path.join(require('node:os').tmpdir(), 'ax-
   try {
     await page.goto(base);
     await page.locator('.project-card').first().waitFor();
+    const controlCard = page.locator('.showcase-card a[href$="/guides/industrial-control/"]');
+    assert.equal(await controlCard.count(), 1, 'home must contain one industrial control guide card');
+    const controlUrl = await controlCard.getAttribute('href');
+    const controlResponse = await page.goto(new URL(controlUrl, base).href);
+    assert.equal(controlResponse.status(), 200);
+    assert.equal(await page.locator('h1').count(), 1);
+    for (const topic of ['plc', 'inverter', 'motor', 'sensor', 'hmi', 'panel', 'safety', 'sources']) {
+      assert.equal(await page.locator(`#${topic}`).count(), 1, `missing guide section: ${topic}`);
+    }
+    assert.equal(await page.locator('.control-sources a[href^="https://"]').count(), 12, 'all primary references must be rendered');
+    for (const ref of await page.locator('a.citation').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))) {
+      assert.ok(await page.evaluate(id => !!document.getElementById(id), ref.slice(1)), `missing citation target ${ref}`);
+    }
+    assert.match(await page.locator('#safety').innerText(), /STO/);
+    for (const theme of ['light', 'dark']) {
+      if (await page.locator('html').getAttribute('data-theme') !== theme) await page.locator('.theme-toggle').click();
+      for (const width of [1440, 768, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `control guide ${theme} overflow at ${width}px`);
+        await page.screenshot({ path: path.join(out, `control-${theme}-${width}.png`), fullPage: true, animations: 'disabled' });
+      }
+    }
+    await page.locator('.theme-toggle').click();
+    await page.goto(base);
     const travelCard = page.locator('.showcase-card a[href$="/travel/jeonju-gunsan/"]');
     assert.equal(await travelCard.count(), 1, 'home must contain one public travel card');
     const travelUrl = await travelCard.getAttribute('href');
@@ -24,7 +48,8 @@ const out = process.env.QA_OUTPUT || path.join(require('node:os').tmpdir(), 'ax-
     const travelText = await page.locator('body').innerText();
     assert.match(travelText, /첫째 날/);
     assert.match(travelText, /둘째 날/);
-    assert.doesNotMatch(travelText, /\b20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\b|\d{1,2}\s*월\s*\d{1,2}\s*일|\d{1,2}:\d{2}|체크인|체크아웃|호텔|예약번호|동행인\s*[:：]|출발지\s*[:：]/i, 'public travel page must omit private itinerary details');
+    assert.match(await page.locator('.travel-public-note').innerText(), /공개용[\s\S]*예시/, 'travel timetable must be labelled as a public example');
+    assert.doesNotMatch(travelText, /\b20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\b|\d{1,2}\s*월\s*\d{1,2}\s*일|호텔|예약번호|동행인\s*[:：]|출발지\s*[:：]/i, 'public travel page must omit calendar dates and identifiable itinerary details');
     const travelHtml = await page.content();
     assert.doesNotMatch(travelHtml, /20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/i, 'must not embed calendar dates in metadata');
     assert.equal(await page.locator('.travel-page img').count(), 0, 'public page uses an inline illustration, not imported image assets');
@@ -79,6 +104,6 @@ const out = process.env.QA_OUTPUT || path.join(require('node:os').tmpdir(), 'ax-
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${route} overflow`);
     }
     assert.deepEqual(errors, []);
-    console.log('PASS: public travel card and privacy, first/second day page, project filters, theme persistence, four viewport sizes, internal links, detail pages, no JS errors');
+    console.log('PASS: industrial guide card, six topics and safety, 12 references and citation anchors, both guide themes at four widths, public travel example/privacy, project filters, theme persistence, internal links, no JS errors');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

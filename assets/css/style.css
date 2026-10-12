@@ -203,6 +203,54 @@ button { font: inherit; }
   .showcase-section { padding-bottom: 48px; }
 }
 
+/* Industrial automation learning guide */
+.showcase-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.control-guide { overflow-wrap: anywhere; }
+.control-hero h1 { margin: 18px 0; font-size: clamp(34px, 5vw, 53px); letter-spacing: -.055em; line-height: 1.2; }
+.control-hero h1 span { color: var(--green); }
+.control-guide .control-meta { margin-top: 18px; font-size: 11px; }
+.control-warning { margin: 28px 0; padding: 18px 21px; border-left: 4px solid var(--amber); border-radius: 0 12px 12px 0; background: var(--surface); }
+.control-warning p { margin: 0; }
+.control-toc { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.control-toc a { padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 12px; text-decoration: none; }
+.control-toc a:hover { background: var(--green-wash); }
+.control-guide section { padding-top: 34px; }
+.control-guide section + section { margin-top: 20px; border-top: 1px solid var(--line); }
+.control-guide h2 { margin: 0 0 18px; font-size: 24px; line-height: 1.4; letter-spacing: -.04em; }
+.control-guide h3 { margin: 27px 0 10px; font-size: 17px; }
+.control-guide .citation { margin-left: 3px; font-family: ui-monospace, monospace; font-size: 10px; text-decoration: none; white-space: nowrap; }
+.control-guide .citation:hover { text-decoration: underline; }
+.control-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; gap: 7px; margin: 27px 0 12px; }
+.control-flow div { display: grid; gap: 5px; min-width: 0; padding: 17px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--green-wash); text-align: center; }
+.control-flow small { color: var(--muted); font-size: 10px; }
+.control-flow strong { font-size: 16px; }
+.control-flow > span { color: var(--green); }
+.control-guide .control-caption { font-size: 11px; }
+.control-role-grid ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0; list-style: none; }
+.control-role-grid li { margin: 0; padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.control-process { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 20px 0; }
+.control-process span { padding: 8px 12px; border-radius: 8px; background: var(--surface-soft); font-size: 12px; }
+.control-process b { color: var(--green); }
+.control-panel-zones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+.control-panel-zones div { padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.control-panel-zones small, .control-panel-zones strong { display: block; }
+.control-panel-zones small { margin-bottom: 6px; color: var(--green); font-size: 10px; }
+.control-panel-zones strong { font-size: 14px; }
+.control-guide .control-panel-zones p { margin-bottom: 0; font-size: 12px; }
+.control-safety { padding: 26px; border: 1px solid var(--amber) !important; border-radius: var(--radius); background: var(--surface); }
+.control-guide .control-sources p { font-size: 12px; }
+.control-back { margin-top: 32px; }
+@media (max-width: 760px) {
+  .showcase-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .control-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .control-flow > span { display: none; }
+  .control-role-grid ul, .control-panel-zones { grid-template-columns: 1fr; }
+  .control-safety { padding: 19px; }
+  .control-guide h2 { font-size: 21px; }
+}
+
 /* Long-form learning and project notes */
 .content-shell { width: min(800px, calc(100% - 48px)); margin: 0 auto; padding-block: 54px 80px; }
 .content-shell > h1 { margin: 0 0 14px; font-size: clamp(31px, 5vw, 44px); letter-spacing: -.055em; line-height: 1.2; }

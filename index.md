@@ -69,6 +69,7 @@ description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정
   <section class="shell showcase-section" id="showcase" aria-labelledby="showcase-title">
     <div class="section-heading"><div><p class="eyebrow">BUILT PAGES</p><h2 id="showcase-title">만든 페이지</h2></div></div>
     <p class="section-intro">기획 중인 실험과 별도로, 직접 만든 공개용 페이지를 모았습니다.</p>
+    <div class="showcase-grid">
     <article class="showcase-card card-featured">
       <div class="card-top"><span class="category-label">개인 프로젝트</span><span class="project-status status-done">공개용 페이지</span></div>
       <div><p class="project-number">TRAVEL PAGE</p><h3>전주·군산 여행 페이지</h3></div>
@@ -76,6 +77,14 @@ description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정
       <div class="card-tags"><span>여행 페이지</span><span>일차별 구성</span><span>개인정보 제외</span></div>
       <div class="card-bottom"><span>산출물 <b>공개용 여행 가이드</b></span><a href="{{ '/travel/jeonju-gunsan/' | relative_url }}">여행 페이지 보기 <span aria-hidden="true">↗</span></a></div>
     </article>
+    <article class="showcase-card">
+      <div class="card-top"><span class="category-label label-learning">학습·조사</span><span class="project-status status-done">공식 자료 정리</span></div>
+      <div><p class="project-number">INDUSTRIAL AUTOMATION</p><h3>산업 자동화 구성요소 입문</h3></div>
+      <p class="project-summary">PLC·인버터·모터·센서·HMI·제어반의 역할과 연결 관계를 공식 자료로 정리했습니다. 개념도, 데이터시트 읽기 예시, 안전 유의사항을 함께 확인할 수 있습니다.</p>
+      <div class="card-tags"><span>PLC·HMI</span><span>모터·센서</span><span>공식 출처</span></div>
+      <div class="card-bottom"><span>산출물 <b>산업 자동화 입문 노트</b></span><a href="{{ '/guides/industrial-control/' | relative_url }}">정리 페이지 보기 <span aria-hidden="true">↗</span></a></div>
+    </article>
+    </div>
   </section>
 
   <section class="journal-section" id="journal" aria-labelledby="journal-title">
