@@ -88,6 +88,6 @@ Android BSP의 Agentic 전환은 단순히 한두 개의 프롬프트를 바꾸�
 - **[제2편: AI-Native BSP 아키텍처의 5대 기둥]({{ '/posts/agentic-bsp-shift-five-pillars/' | relative_url }})**: L1을 넘어 폐루프(L4)를 가능하게 만드는 엔지니어링 전제 조건
 - **[제3편: 단계별 전환 전략 (Phase 1: L1에서 L3~L4로 도약하기)]({{ '/posts/agentic-bsp-shift-phase1-strategy/' | relative_url }})**: 호스트 빌드 & 정적 진단의 자율 폐루프 구축
 - **[제4편: Phase 2: L4에서 L5로 (Virtual DUT & 런타임 관측성)]({{ '/posts/agentic-bsp-shift-phase2-strategy/' | relative_url }})**: Cuttlefish/QEMU 가상 장치 부팅 및 Perfetto SQL 질의
-- **제5편: Phase 3: L5에서 L6로 (Physical DUT & 조직적 안착)**: 실물 보드 팜, 하드웨어 루프, 정량적 KPI 측정 체계 (작성 예정)
+- **[제5편: Phase 3: L5에서 L6로 (Physical DUT 보드 팜과 다중 에이전트 협업 체계)]({{ '/posts/agentic-bsp-shift-phase3-strategy/' | relative_url }})**: 실물 보드 팜, 하드웨어 루프, 정량적 ROI/KPI 측정 체계
 
 BSP 엔지니어링은 하드웨어의 동작을 소프트웨어와 검증 절차로 확인하는 일입니다. 이 시리즈에서는 에이전트가 실제로 활용할 수 있는 관측 데이터, 작업 절차, 완료 증거를 구체적인 BSP 사례에 연결해 보겠습니다.

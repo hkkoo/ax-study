@@ -71,10 +71,10 @@ description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정
     <p class="section-intro">기획 중인 실험과 별도로, 직접 만든 공개용 페이지를 모았습니다.</p>
     <div class="showcase-grid">
     <article class="showcase-card card-featured">
-      <div class="card-top"><span class="category-label label-automation">시스템 엔지니어링</span><span class="project-status status-done">연재 중 (1~4편)</span></div>
+      <div class="card-top"><span class="category-label label-automation">시스템 엔지니어링</span><span class="project-status status-done">완결 (전 5편)</span></div>
       <div><p class="project-number">AGENTIC BSP SHIFT</p><h3>Android BSP의 Agentic Shift</h3></div>
-      <p class="project-summary">L1(단순 자동완성)에서 L5(Gerrit CI 연계)로 도약하기 위한 엔지니어링 전략. Target Profile, 관측성 가상화, 5대 기둥과 Phase 1·2 실전 로드맵을 정리합니다.</p>
-      <div class="card-tags"><span>Android BSP</span><span>Agentic Engineering</span><span>L1~L6 성숙도</span><span>5대 기둥</span><span>Phase 1·2 전략</span></div>
+      <p class="project-summary">L1(단순 자동완성)에서 L6(자율 폐루프)로 도약하기 위한 엔지니어링 전략. 5대 기둥, Phase 1·2·3 실전 로드맵, Physical DUT 보드 팜과 ROI 체계를 정리합니다.</p>
+      <div class="card-tags"><span>Android BSP</span><span>Agentic Engineering</span><span>L1~L6 성숙도</span><span>5대 기둥</span><span>Phase 1·2·3 전략</span></div>
       <div class="card-bottom"><span>산출물 <b>BSP 자율화 전략 시리즈</b></span><a href="{{ '/posts/agentic-bsp-shift-definition-and-landscape/' | relative_url }}">시리즈 보기 <span aria-hidden="true">↗</span></a></div>
     </article>
     <article class="showcase-card">

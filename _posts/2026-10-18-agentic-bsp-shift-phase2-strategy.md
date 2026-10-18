@@ -123,8 +123,8 @@ ORDER BY timestamp DESC LIMIT 5;
 
 ---
 
-## 다음 단계로의 비전: Phase 3 예고
+## 다음 단계로의 비전: Phase 3 완결편
 
 Phase 2를 통해 "가상 장치(Virtual DUT) 기반의 런타임 폐루프와 Gerrit CI 통합(L4~L5)"이 안착되면, 조직은 비로소 거대한 테스트 인프라와 안전망을 확보하게 됩니다.
 
-다음 마지막 [제5편]에서는 가상 장치를 넘어 실제 실리콘 칩셋을 다루는 **"Phase 3: L5에서 L6로 — 실물 보드 팜(Physical DUT Farm), 하드웨어 인더루프, 그리고 다중 에이전트 협업 체계"**를 다루며 전체 시리즈를 완성하겠습니다.
+다음 마지막 **[제5편: Phase 3: L5에서 L6로 — 실물 보드 팜(Physical DUT Farm), 하드웨어 인더루프, 그리고 다중 에이전트 협업 체계]({{ '/posts/agentic-bsp-shift-phase3-strategy/' | relative_url }})**에서 가상 장치를 넘어 실제 실리콘 칩셋을 다루는 실물 보드 하네스와 실전 ROI/KPI 종합 평가 체계를 다루며 전체 시리즈를 완성합니다.
