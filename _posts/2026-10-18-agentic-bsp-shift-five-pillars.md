@@ -7,7 +7,7 @@ date: 2026-10-18 01:00:00 +0900
 
 [제1편]({{ '/posts/agentic-bsp-shift-definition-and-landscape/' | relative_url }})에서 임베디드 BSP 개발이 모바일 앱이나 웹 개발과 달리 **물리적 하드웨어 종속성, 거대한 빌드 규모, 보드 브릭(Brick) 위험**이라는 특수한 제약을 갖는다는 점을 확인했습니다.
 
-현재 대부분의 엔지니어링 현장은 코드 자동완성과 단순 질의응답을 활용하는 **L1 수준**에 도달해 있습니다. 하지만 L1에 머무는 것만으로는 긴 빌드 시간과 복잡한 하드웨어 디버깅이라는 BSP 개발의 진짜 병목을 해결할 수 없습니다.
+일반 개발 현장에서는 코드 자동완성과 단순 질의응답 활용이 확산되고 있지만, BSP 조직의 도입 수준은 보안·라이선스 정책과 개발 환경에 따라 다릅니다. 이 글은 L1을 측정된 업계 기준선으로 가정하지 않고, 각 팀이 현재 수준을 확인한 뒤 긴 빌드 시간과 복잡한 하드웨어 디버깅이라는 병목을 줄이는 방법을 살펴봅니다.
 
 우리의 다음 목표인 **L3(저장소/하드웨어 맥락 인식)와 L4(자율 폐루프 디버깅)**로 안전하게 도약하려면 어떤 엔지니어링 레일이 깔려 있어야 할까요? 해답은 "더 똑똑한 AI 모델"을 기다리는 것이 아니라, **"AI의 행동을 통제하고 하드웨어 맥락을 주입하는 단단한 엔지니어링 하네스(Harness)"**를 구축하는 데 있습니다. 이를 지탱하는 **5대 핵심 기둥(Five Pillars)**을 살펴봅니다.
 
@@ -58,7 +58,7 @@ Qualcomm의 `qcom-linux-skills`나 Google의 `android/skills`처럼, 각 엔지�
 
 ## 3. Pillar 3: AI-Native Observability (관측 데이터의 가상화)
 
-"AI가 로그를 잘 읽게 하려면 커널의 `printk`를 전부 JSON 포맷으로 바꿔야 할까?"라는 질문이 자주 나옵니다. 하지만 이는 현실적으로 불가능합니다. 3천만 줄이 넘는 리눅스 커널 업스트림이 이를 수용하지 않을뿐더러, 커널 공간에서 문자열 직렬화는 엄청난 인터럽트 지연과 성능 저하를 초래하기 때문입니다.
+"AI가 로그를 잘 읽게 하려면 커널의 `printk`를 전부 JSON 포맷으로 바꿔야 할까?"라는 질문이 나올 수 있습니다. 커널 로그 형식을 일괄 변경하는 대신, 기존 메시지를 보존하고 호스트에서 파싱·정규화하는 경로부터 만드는 편이 현실적입니다. 사용자 공간의 `dmesg`는 JSON 출력 옵션을 제공하는 구현도 있지만, JSON 포장은 원문에 없는 장치·상태 정보를 만들어 주지 않습니다. 커널 trace event처럼 이미 구조화된 데이터는 그 필드 정의와 함께 수집해 로그와 연결할 수 있습니다.
 
 ### 호스트 측 가상화 (Virtualization)
 올바른 해법은 **커널을 바꾸는 것이 아니라, 호스트의 툴링을 개선하는 것**입니다.
@@ -67,14 +67,23 @@ Qualcomm의 `qcom-linux-skills`나 Google의 `android/skills`처럼, 각 엔지�
 [타깃 장치 로그]
 UART 스트림 / dmesg (/dev/kmsg) / ftrace / Android logcat
                      ↓ (수십 MB의 비정형 원본 데이터)
-[호스트 어댑터: Perfetto Trace Processor]
-SQLite 기반 가상 테이블로 파싱 & 색인화
+[호스트 어댑터: Perfetto Trace Processor 또는 프로젝트별 파서]
+지원되는 입력은 PerfettoSQL 테이블로 노출; 그 외 원본은 별도 어댑터 필요
                      ↓
 [에이전트 인터페이스: PerfettoSQL]
-"SELECT * FROM events WHERE severity = 'ERROR' AND time BETWEEN 1.2 AND 1.5"
+"예: SELECT ts, prio, tag, msg FROM android_logs WHERE prio >= 6"
 ```
 
-Google Perfetto의 **Trace Processor Agent Mode**(RFC-0025)가 지향하는 것처럼, 에이전트에게 50MB짜리 텍스트 로그를 몽땅 읽히는 대신 **SQL 쿼리를 통해 필요한 시간 구간의 정형화된 슬라이스만 질의**하게 만듭니다. 이렇게 하면 토큰 낭비가 사라지고 환각이 원천 차단됩니다.
+Perfetto Trace Processor는 지원하는 trace와 로그를 테이블로 제공하고 SQL 질의를 수행합니다. 현재 CLI에는 에이전트가 읽기 쉬운 결과 형식과 출력 크기 제한을 제공하는 `--agent` 모드가 있습니다. RFC-0025는 Perfetto의 AI 통합 방향을 설명하는 설계 제안이며, CLI 모드 자체와 구분해야 합니다. 예를 들어 Perfetto가 수집하거나 지원하는 Android log를 포함한 trace에서는 다음처럼 실제 `android_logs` 테이블을 질의할 수 있습니다. `ts`는 나노초 단위입니다. UART 텍스트나 임의의 `dmesg` 덤프가 자동으로 같은 스키마에 들어오는 것은 아니므로, 입력 어댑터·시간 기준·원본 위치를 별도로 정해야 합니다.
+
+```sql
+SELECT ts, prio, tag, msg
+FROM android_logs
+WHERE prio >= 6 AND ts BETWEEN 1200000000 AND 1500000000
+ORDER BY ts;
+```
+
+이 접근은 원본 전체를 매번 모델 컨텍스트에 넣는 양을 줄이고 결과를 재현 가능하게 하지만, 분석 오류나 환각을 없애지는 않습니다. 질의 결과와 원본 증거를 함께 보존하고 모델의 해석은 별도로 검증해야 합니다. ([Perfetto CLI agent mode](https://perfetto.dev/docs/reference/trace-processor-cli), [Android log 테이블](https://perfetto.dev/docs/data-sources/android-log), [RFC-0025](https://github.com/google/perfetto/discussions/5763))
 
 ### Fact vs Hypothesis 분리 프로토콜
 - **Fact (증명된 사실)**: `t=1.24s에 i2c transfer timed out(-110) 에러 발생` (로그 증거 라인 링크)
@@ -86,13 +95,14 @@ Google Perfetto의 **Trace Processor Agent Mode**(RFC-0025)가 지향하는 것�
 ## 4. Pillar 4: Deterministic Verifier & Human Approval (비파괴 기본 원칙)
 
 ### 'LLM as a Judge'의 함정 피하기
-"이 패치가 버그를 잘 고쳤는가?"를 LLM에게 물어보면, LLM은 자신이 만든 코드에 대해 언제나 "완벽하게 수정되었습니다"라고 긍정적인 편향을 보입니다. 에이전트의 작업 평가는 절대로 LLM의 주관적 평가에 맡겨서는 안 됩니다.
+"이 패치가 버그를 잘 고쳤는가?"를 같은 LLM의 설명만으로 판정하면 독립적인 검증이 되지 않습니다. 완료 판정은 결정론적 검사와 사람이 확인할 수 있는 증거에 연결해야 합니다.
 
 ### 결정론적 검증자 (Deterministic Verifier)
 작업 완료 판정은 항상 **스크립트와 도구의 종료 코드(Exit Code)**로 판정해야 합니다:
-- 컴파일러 종료 코드 `0` (Kleaf/AOSP 빌드 성공)
+- 컴파일러 종료 코드 `0` (Kleaf/AOSP 빌드 성공; 단독 완료 기준은 아님)
+- 변경 diff에서 진단을 숨기는 코드·테스트 삭제·경고 억제·ABI 변경 여부를 정책 기반으로 검사
 - `dtschema` 유효성 검사 `PASS`
-- 재부팅 후 dmesg 내 해당 드라이버의 probe 반환값 `0` 확인
+- 런타임 작업에서는 대상 보드·이미지 식별을 기록하고, 해당 드라이버의 기능별 관측 기준을 확인
 - 정해진 회귀 테스트(VTS/CTS 또는 로컬 테스트) 통과
 
 ### 비파괴 기본 원칙 (Non-destructive Default)
@@ -128,7 +138,7 @@ Target Board (HW Rev / SoC ID)
 Observation (Canonical Log Stream)
 ```
 
-이 **4각 Provenance(출처 체계)**가 갖춰지면, 에이전트가 이전 빌드의 낡은 바이너리(Stale Artifact)를 테스트해놓고 "문제가 해결되었다"고 잘못 보고하는 거짓 완료(False Positive)를 완벽하게 방지할 수 있습니다.
+이 출처 연결은 이전 빌드의 낡은 바이너리(Stale Artifact)를 시험하는 실수를 발견하는 데 도움이 됩니다. 다만 잘못된 타깃 식별이나 계측 누락까지 없애지는 않으므로, 실제 부팅한 이미지의 식별 정보와 측정 범위도 결과에 남겨야 합니다.
 
 ---
 
