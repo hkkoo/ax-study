@@ -1,0 +1,146 @@
+---
+layout: post
+title: "Android BSP의 Agentic Shift (2) — AI-Native 아키텍처의 5대 핵심 기둥"
+description: "하드웨어 추측 금지(Target Profile), 단위 작업 스킬화, 관측성 가상화, 결정론적 검증과 안전 승인, 파일 기반 상태 관리 등 5대 아키텍처 기둥을 상세히 분석합니다."
+date: 2026-10-18 01:00:00 +0900
+---
+
+[제1편]({{ '/posts/agentic-bsp-shift-definition-and-landscape/' | relative_url }})에서 임베디드 BSP 개발이 모바일 앱이나 웹 개발과 달리 **물리적 하드웨어 종속성, 거대한 빌드 규모, 보드 브릭(Brick) 위험**이라는 특수한 제약을 갖는다는 점을 확인했습니다.
+
+그렇다면 LLM과 코딩 에이전트가 이 위험한 환경에서 환각(Hallucination)을 일으키지 않고, 엔지니어의 신뢰를 받는 실질적인 동료로 일하게 만들려면 시스템을 어떻게 설계해야 할까요?
+
+해답은 "더 똑똑한 AI 모델"을 기다리는 것이 아니라, **"AI의 행동을 통제하고 하드웨어 맥락을 주입하는 단단한 엔지니어링 하네스(Harness)"**를 구축하는 데 있습니다. 이를 구성하는 **5대 핵심 기둥(Five Pillars)**을 살펴봅니다.
+
+---
+
+## 1. Pillar 1: Target Profile (하드웨어 스펙 추측 금지 원칙)
+
+에이전트가 BSP 환경에서 치명적인 실수를 저지르는 가장 흔한 원인은 **"하드웨어 정보를 모델의 지식에 의존해 추측(Guessing)하는 것"**입니다.
+
+### 추측의 위험성
+동일한 SoC(예: Qualcomm QCS8550)를 사용하더라도, 보드 리비전(Rev A vs Rev B)에 따라 I2C 버스 번호, PMIC LDO 레귤레이터 번호, GPIO 핀맵이 완전히 달라집니다. 에이전트가 웹에 공개된 일반적인 드라이버 코드를 참고해 임의로 Device Tree를 수정하면 하드웨어 쇼트나 부팅 불능이 발생합니다.
+
+### 아키텍처 해결책: 선언적 Target Profile
+보드와 칩셋의 하드웨어 진실(Single Source of Truth)을 별도의 정형화된 설정 파일로 주입하고, 에이전트가 이를 반드시 읽고 전제로 삼도록 강제합니다.
+
+- **SoC & 보드 명세**: SoC 파트명, 실리콘 리비전, 보드 HW Rev, PMIC 파트 넘버
+- **빌드 및 환경 Entrypoint**: 커널 브랜치, Defconfig 경로, Toolchain 위치, AOSP lunch 타깃
+- **산출물 및 패키징 경로**: DTB/DTBO 출력 경로, Image, vendor_boot, vmlinux 심볼 파일
+- **장치 연결 정보**: ADB Serial 번호, UART tty 마운트 경로, Fastboot 장치 ID
+
+> **원칙**: 프로필에 명시되지 않은 정보는 `unknown`으로 유지해야 하며, 프로필의 설정값과 실제 런타임 로그(`uname`, devkmsg)가 불일치할 경우 에이전트는 작업을 중단하고 차이를 먼저 조사해야 합니다.
+
+---
+
+## 2. Pillar 2: Focused Skills (작고 명확한 단위 작업 절차)
+
+### '만능 에이전트'의 실패
+하나의 거대한 시스템 프롬프트에 "너는 안드로이드 BSP 전문가야. 소스 보고 알아서 빌드하고 디버깅해서 고쳐줘"라고 지시하는 방식(Do-everything Agent)은 반드시 실패합니다. 컨텍스트가 오염되고 어떤 순서로 판단해야 할지 길을 잃기 때문입니다.
+
+### 절차 중심의 단위 스킬화
+Qualcomm의 `qcom-linux-skills`나 Google의 `android/skills`처럼, 각 엔지니어링 작업 단위를 작고 명확한 계약(Contract)을 가진 **Skill**로 분율화해야 합니다.
+
+각 스킬은 다음 4가지 요소를 엄격히 정의합니다:
+1. **Input (입력)**: 에러 로그 위치, 대상 소스 파일, 타깃 프로필
+2. **Prerequisites (전제 조건)**: 컴파일러 환경 초기화 여부, 워크스페이스 격리 상태
+3. **Procedure (수행 절차)**: 어떤 증거를 먼저 확인하고 어떤 순서로 파일을 수정하는지
+4. **Outcome (산출물)**: 패치 diff, 컴파일된 DTBO, 검증 리포트
+
+| 추천 단위 스킬 | 주 담당 업무 | 비고 |
+|---|---|---|
+| `kernel-build` | 프로젝트 표준 빌드 wrapper/Kleaf 호출 | 독립 `make` 명령 추측 방지 |
+| `dts-binding-check` | `dtschema` 및 `dtc`를 통한 문법/바인딩 검사 | 빌드 전 조기 문법 오류 차단 |
+| `kernel-oops-triage` | 패닉 콜스택 파싱 및 호스트 `addr2line` 심볼 매핑 | 타깃 오버헤드 없이 원인 함수 규명 |
+| `patch-backport` | Upstream 커널 커밋 검색 및 충돌(Conflict) 해결 | Git 3-way merge 자동화 |
+| `boot-validate` | UART/dmesg에서 부팅 성공 마커 판정 | OS별(Linux vs Android) 성공 조건 분리 |
+
+---
+
+## 3. Pillar 3: AI-Native Observability (관측 데이터의 가상화)
+
+"AI가 로그를 잘 읽게 하려면 커널의 `printk`를 전부 JSON 포맷으로 바꿔야 할까?"라는 질문이 자주 나옵니다. 하지만 이는 현실적으로 불가능합니다. 3천만 줄이 넘는 리눅스 커널 업스트림이 이를 수용하지 않을뿐더러, 커널 공간에서 문자열 직렬화는 엄청난 인터럽트 지연과 성능 저하를 초래하기 때문입니다.
+
+### 호스트 측 가상화 (Virtualization)
+올바른 해법은 **커널을 바꾸는 것이 아니라, 호스트의 툴링을 개선하는 것**입니다.
+
+```text
+[타깃 장치 로그]
+UART 스트림 / dmesg (/dev/kmsg) / ftrace / Android logcat
+                     ↓ (수십 MB의 비정형 원본 데이터)
+[호스트 어댑터: Perfetto Trace Processor]
+SQLite 기반 가상 테이블로 파싱 & 색인화
+                     ↓
+[에이전트 인터페이스: PerfettoSQL]
+"SELECT * FROM events WHERE severity = 'ERROR' AND time BETWEEN 1.2 AND 1.5"
+```
+
+Google Perfetto의 **Trace Processor Agent Mode**(RFC-0025)가 지향하는 것처럼, 에이전트에게 50MB짜리 텍스트 로그를 몽땅 읽히는 대신 **SQL 쿼리를 통해 필요한 시간 구간의 정형화된 슬라이스만 질의**하게 만듭니다. 이렇게 하면 토큰 낭비가 사라지고 환각이 원천 차단됩니다.
+
+### Fact vs Hypothesis 분리 프로토콜
+- **Fact (증명된 사실)**: `t=1.24s에 i2c transfer timed out(-110) 에러 발생` (로그 증거 라인 링크)
+- **Hypothesis (추론된 가설)**: `DTS 상의 PMIC LDO 전압 공급이 누락되었을 가능성`
+- 에이전트는 증명된 사실과 자신의 가설을 명확히 구분해야 하며, 가설을 입증할 검증 절차(Verifier) 없이 곧바로 소스 코드를 수정할 수 없습니다.
+
+---
+
+## 4. Pillar 4: Deterministic Verifier & Human Approval (비파괴 기본 원칙)
+
+### 'LLM as a Judge'의 함정 피하기
+"이 패치가 버그를 잘 고쳤는가?"를 LLM에게 물어보면, LLM은 자신이 만든 코드에 대해 언제나 "완벽하게 수정되었습니다"라고 긍정적인 편향을 보입니다. 에이전트의 작업 평가는 절대로 LLM의 주관적 평가에 맡겨서는 안 됩니다.
+
+### 결정론적 검증자 (Deterministic Verifier)
+작업 완료 판정은 항상 **스크립트와 도구의 종료 코드(Exit Code)**로 판정해야 합니다:
+- 컴파일러 종료 코드 `0` (Kleaf/AOSP 빌드 성공)
+- `dtschema` 유효성 검사 `PASS`
+- 재부팅 후 dmesg 내 해당 드라이버의 probe 반환값 `0` 확인
+- 정해진 회귀 테스트(VTS/CTS 또는 로컬 테스트) 통과
+
+### 비파괴 기본 원칙 (Non-destructive Default)
+물리 장치를 다루는 BSP 환경에서는 에이전트의 권한을 엄격히 계층화해야 합니다.
+
+| 에이전트 자율 수행 허용 | 반드시 사람의 승인(Approval) 필요 |
+|---|---|
+| 소스 코드 읽기 및 심볼 탐색 | 보드 플래시(Flash / QDL / Fastboot) |
+| 격리된 워크스페이스 내 코드 수정 | 파티션 테이블 재작성 (Partition Write) |
+| 로컬 빌드 및 컴파일 에러 수정 | eFuse / Secure Boot 관련 조작 (금지) |
+| 로그 및 트레이스 파일 분석 질의 | Gerrit 패치 업로드 및 Merge 제출 |
+
+---
+
+## 5. Pillar 5: State Outside Conversation (대화창 밖 상태 및 4각 Provenance)
+
+### 컨텍스트 윈도우 유실 문제
+디버깅이 길어지면 수십 번의 툴 호출과 에러 메시지가 대화창에 쌓입니다. 결국 LLM의 컨텍스트 윈도우가 넘치거나 요약되면서 **초기에 관측했던 중요한 하드웨어 증거가 유실(Lost-in-the-middle)**됩니다.
+
+### 파일 기반 상태 관리
+에이전트의 두뇌(Conversation Memory)에만 의존하지 않고, 모든 상태를 **로컬 디스크의 정형화된 파일**로 영속화합니다:
+- `run.json`: 실행 메타데이터, 사용된 모델, 타깃 프로필, 시작/종료 시각
+- `events.jsonl`: 에이전트가 실행한 모든 명령, 종료 코드, 상태 전이 기록
+- `evidence/`: 원본 dmesg, UART 덤프, 빌드 실패 로그 스냅샷
+
+```text
+Source (Git Commit / Diff Hash)
+      ↕ (빌드 인과관계)
+Artifact (Image / DTBO SHA256)
+      ↕ (배포 인과관계)
+Target Board (HW Rev / SoC ID)
+      ↕ (관측 인과관계)
+Observation (Canonical Log Stream)
+```
+
+이 **4각 Provenance(출처 체계)**가 갖춰지면, 에이전트가 이전 빌드의 낡은 바이너리(Stale Artifact)를 테스트해놓고 "문제가 해결되었다"고 잘못 보고하는 거짓 완료(False Positive)를 완벽하게 방지할 수 있습니다.
+
+---
+
+## 요약: 모델 중심에서 '엔지니어링 하네스' 중심으로
+
+| 구분 | 1세대 AI 코딩 (Model-centric) | 2세대 AI-Native BSP (Harness-centric) |
+|---|---|---|
+| **핵심 자산** | 더 강력한 거대 언어 모델 (LLM) | 하드웨어를 통제하는 **프로필, 스킬, 검증자** |
+| **로그 처리** | 수만 줄의 raw 텍스트 복사-붙여넣기 | **Perfetto Trace Processor를 통한 SQL 질의** |
+| **안전 장치** | "조심해서 고쳐줘"라는 프롬프트 당부 | **비파괴 권한 분리 및 Human Approval Gate** |
+| **완료 판정** | AI의 "수정 완료했습니다"라는 답변 | **결정론적 스크립트 기반 Verifier의 Exit Code 0** |
+
+결국 AI-Native Android BSP의 핵심은 모델 자체가 아니라, **하드웨어와 OS의 엄격한 규칙 속에서 AI가 안전하게 궤도를 돌 수 있도록 만들어 주는 레일(Rail)**을 까는 일입니다.
+
+다음 [제3편]에서는 이 5대 기둥 중 가장 기술적 난이도가 높은 **"관측성의 전환: dmesg, ftrace, Perfetto 가상화"**를 다루며, 실제 로그를 어떻게 에이전트가 SQL로 질의하는지 구체적인 데이터 모델을 통해 살펴보겠습니다.
