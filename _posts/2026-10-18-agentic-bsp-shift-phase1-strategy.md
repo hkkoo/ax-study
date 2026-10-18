@@ -130,4 +130,4 @@ Phase 1이 성공적으로 현장에 안착했는지는 감(Feeling)이 아니�
 
 Phase 1을 통해 "호스트 상의 소스 수정과 빌드 폐루프(L3~L4)"가 완성되면, 비로소 에이전트는 컴파일을 통과한 바이너리를 들고 다음 단계로 나아갈 준비가 됩니다.
 
-다음 [제4편]에서는 빌드된 이미지를 가상 장치에 올리고 런타임 버그를 잡는 **"Phase 2: L4에서 L5로 — Cuttlefish/QEMU 가상 DUT와 Perfetto 관측성 전략"**을 다룹니다.
+다음 **[제4편: Phase 2: L4에서 L5로 — Cuttlefish/QEMU 가상 DUT와 Perfetto 관측성 전략]({{ '/posts/agentic-bsp-shift-phase2-strategy/' | relative_url }})**에서는 빌드된 이미지를 가상 장치에 올리고 런타임 버그를 잡는 실전 전략을 다룹니다.
