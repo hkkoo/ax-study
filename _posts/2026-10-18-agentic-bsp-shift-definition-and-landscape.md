@@ -75,7 +75,7 @@ BSP의 Agentic Engineering은 **"확인된 타깃 정보 + 작업에 맞는 절�
 | **NVIDIA** | Jetson (Orin/Thor),<br/>Jetson Linux (L4T) | • [NVIDIA-AI-IOT/jetson-bsp-skills](https://github.com/NVIDIA-AI-IOT/jetson-bsp-skills)<br/>• [NVIDIA-AI-IOT/jetson-device-skills](https://github.com/NVIDIA-AI-IOT/jetson-device-skills)<br/>• [NVIDIA/skills](https://github.com/NVIDIA/skills) | **L4 ~ L5** | 호스트(BSP 커스터마이징 수명주기)와 타깃(진단/메모리 튜닝) 스킬 분리, Target Profile 기반 다단계 프로모션 |
 | **Qualcomm** | Snapdragon, Qualcomm Linux,<br/>QRB/QCS IoT 플랫폼 | • [qualcomm-linux/qcom-linux-skills](https://github.com/qualcomm-linux/qcom-linux-skills) | **L3 ~ L4** | 작고 명확한 Non-destructive BSP 단위 스킬(기기 정보, QDL 저수준 플래시, 부팅 검증, 커널 백포트, LAVA CI) |
 | **Intel** | Core Ultra, Xeon, Arc GPU,<br/>x86 Linux Kernel | • [intel/linux-kernel-oops](https://github.com/intel/linux-kernel-oops)<br/>• [intel/intel-performance-skills](https://github.com/intel/intel-performance-skills)<br/>• [intel/gpu-ai-skills](https://github.com/intel/gpu-ai-skills) | **L3 ~ L4** | Kernel Panic/Oops 심볼 역추적(First Bad Frame), `perf` 기반 코어 스케일링, `unitrace` 저수준 GPU 프로파일링 |
-| **NXP** | i.MX 8 / 9 시리즈,<br/>meta-imx Yocto | • [nxp-imx](https://github.com/nxp-imx) 생태계<br/>• [yocto-agent-skills](https://github.com/yocto/yocto-agent-skills) (공동 생태계) | **L3** | Yocto 릴리즈 인지 라우팅(`yocto-doc-router`), BitBake 실패 자동 파싱(`bitbake-debug`), BSP 레이어 검증 |
+| **NXP** | i.MX 8 / 9 시리즈,<br/>meta-imx Yocto | • [nxp-imx](https://github.com/nxp-imx) 생태계<br/>• [yocto-agent-skills](https://github.com/Higangssh/yocto-agent-skills) (공동 생태계) | **L3** | Yocto 릴리즈 인지 라우팅(`yocto-doc-router`), BitBake 실패 자동 파싱(`bitbake-debug`), BSP 레이어 검증 |
 | **Texas Instruments** | Sitara AM62x/AM68x,<br/>Processor SDK Linux | • [TexasInstruments/edgeai-studio-agent](https://github.com/TexasInstruments/edgeai-studio-agent)<br/>• [TexasInstruments/edgeai](https://github.com/TexasInstruments/edgeai) | **L2 ~ L3** | 타깃 보드 연동 디바이스 에이전트, 컨테이너 기반(GHCR Docker) 재현 가능한 OpenEmbedded 빌드 |
 | **MediaTek** | Dimensity, Genio IoT,<br/>NeuroPilot, AOSP | • [MediaTek 공식 GitHub](https://github.com/mediatek)<br/>• Genio Developer Platform | **L2 ~ L3** | 온디바이스 NPU 역량은 강력하나 공개 BSP 스킬은 제한적. 견고한 AOSP/Yocto CLI 스크립트 기반 보유 |
 | **Renesas** | R-Car, RZ 시리즈,<br/>e2 studio | • [renesas/renesas-skills](https://github.com/renesas/renesas-skills) | **L2 ~ L3** | `npx skills` 배포 체계, `.vscode/launch.json` 디버거 설정 자동화(`configure-renesas-debug`), RTOS 디버깅 |
@@ -129,7 +129,7 @@ NVIDIA는 임베디드 리눅스/보드 환경에서 가장 완성도 높은 **�
 #### 5. NXP & Yocto Project 생태계: 릴리즈 인지 라우팅을 통한 환각 차단
 - **임베디드 Linux/Yocto의 고질적 문제**:
   - LLM은 Yocto/BitBake 버전 간(Dunfell, Kirkstone, Scarthgap 등) 문법 변경(예: `_append`에서 `:append`로의 문법 전환, override 표기법)을 혼동하여 치명적인 문법 에러를 자주 생성합니다.
-- **공식 문서 우선 Agent Skills ([`yocto-agent-skills`](https://github.com/yocto/yocto-agent-skills))**:
+- **공식 문서 우선 Agent Skills ([`yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills))**:
   - `yocto-doc-router`: 프로젝트 프로필에 명시된 릴리즈 버전에 맞는 공식 문서만 에이전트에게 공급하여 버전 간 문법 환각을 원천 차단합니다.
   - `bitbake-debug`: BitBake 빌드 실패 시 수만 줄의 태스크 로그 중 `do_compile`, `do_package_qa` 단계의 핵심 에러 구간을 정규화하여 추출합니다.
   - `yocto-bsp-kernel`: 머신 설정(Machine Config), BSP 레이어 의존성, U-Boot 패치 및 커널 defconfig 수정을 지원합니다.
