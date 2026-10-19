@@ -72,12 +72,12 @@ Worktree는 체크아웃 파일을 분리하지만 공유 출력 디렉터리나
 
 Phase 1에서 가장 먼저 에이전트에게 완전히 일임해야 할 **3대 자율 과제**입니다. 이 과제들은 하드웨어 장비(DUT)가 필요 없고 호스트 서버 안에서 완결되므로, 가장 안전하고 빠르게 ROI를 입증할 수 있습니다.
 
-### ① Kleaf / AOSP 빌드 오류 트리아지 & 자동 복구
-- **시작 조건**: 컴파일러 에러 로그 (gcc/clang error, linker undefined reference)
+### ① Kleaf / AOSP / Yocto 빌드 오류 트리아지 & 자동 복구
+- **시작 조건**: 컴파일러 에러 로그 (gcc/clang error, linker undefined reference) 또는 BitBake 태스크 실패
 - **자율 절차**:
-  1. 컴파일러 에러 로그에서 파일명, 라인 번호, 심볼명 파싱
-  2. 대상 소스 파일 및 관련 헤더 탐색
-  3. 시그니처 변경, 매크로 정의 누락, 헤더 include 누락 수정
+  1. 컴파일러/빌드 에러 로그에서 파일명, 라인 번호, 심볼명 파싱 (Yocto 환경에서는 [`bitbake-debug`](https://github.com/yocto/yocto-agent-skills)를 통해 `do_compile`, `do_package_qa` 구간 추출)
+  2. 릴리즈 버전에 맞는 공식 문서 라우팅 ([`yocto-doc-router`](https://github.com/yocto/yocto-agent-skills) 등을 활용하여 문법 환각 차단)
+  3. 대상 소스 파일 및 관련 헤더 탐색 후 시그니처 변경, 매크로 정의 누락, 헤더 include 누락 수정
   4. 격리 환경에서 빌드 wrapper 재실행
   5. 빌드 exit code `0` 및 필수 diff 검사 통과까지 정책상 제한된 횟수(예: 최대 3회) 내 재시도. 한도에 도달하면 변경 diff와 로그를 보존하고 사람에게 넘깁니다.
 
@@ -86,14 +86,14 @@ Phase 1에서 가장 먼저 에이전트에게 완전히 일임해야 할 **3대
 - **자율 절차**:
   1. 수십 분이 걸리는 전체 커널 빌드를 돌리기 전에, `dtc` 및 `dtschema` 검증 도구 직접 호출
   2. YAML 바인딩 규칙 위반(누락된 필수 속성, 잘못된 unit-address) 검출
-  3. 에이전트가 DTS 수정 후 `dtc` 재검사 통과 확인
+  3. 에이전트가 DTS 수정 후 `dtc` 재검사 통과 확인 (Qualcomm의 [`qcom-kernel-platform-backport`](https://github.com/qualcomm-linux/qcom-linux-skills) 절차와 연계)
 
 ### ③ Kernel Oops / Panic 심볼 역추적
 - **시작 조건**: 타깃 부팅 시 콘솔에 찍힌 Kernel Oops / Panic 덤프
 - **자율 절차**:
-  1. Oops 덤프에서 Crash PC, LR, Call Trace 레지스터 주소 파싱
-  2. 호스트에 빌드된 `vmlinux` 심볼 파일과 `addr2line` 도구 호출
-  3. 주소를 C 소스 코드 라인(`drivers/net/.../foo.c:142`)으로 변환하고 원인 코드 스니펫 제시. KASLR이 적용된 덤프는 커널 빌드와 일치하는 `vmlinux` 및 런타임 relocation 정보로 주소를 보정한 뒤 해석해야 합니다.
+  1. Oops 덤프에서 Crash PC, LR, Call Trace 레지스터 주소 파싱 (Intel의 [`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) 오픈소스 스킬 접근법 적용)
+  2. 호스트에 빌드된 `vmlinux` 심볼 파일과 `gdb`/`addr2line` 도구 호출
+  3. 첫 번째 실패 프레임(First Bad Frame)을 특정하고 주소를 C 소스 코드 라인(`drivers/net/.../foo.c:142`)으로 변환하여 원인 코드 스니펫 제시. KASLR이 적용된 덤프는 커널 빌드와 일치하는 `vmlinux` 및 런타임 relocation 정보로 주소를 보정한 뒤 해석합니다.
 
 ---
 

@@ -70,10 +70,12 @@ L6 단계의 자율 에이전트가 실물 보드를 조작하기 위해 조직�
    - 보드가 응답 불능(Unresponsive)에 빠졌을 때, 에이전트가 `power_cycle(dut_id)` 어댑터를 호출하여 물리적으로 전원을 차단(Cut-off)하고 3초 후 재인가할 수 있어야 합니다.
 2. **UART 시리얼 멀티플렉싱과 링버퍼 로거**:
    - 커널 초기 부팅 단계나 부트로더(PBL/XBL/U-Boot) 단계에서는 ADB가 동작하지 않습니다. 시리얼 콘솔 출력을 상시 캡처하고, 타임스탬프와 함께 로컬 링버퍼 파일로 스트리밍하는 백그라운드 데몬이 필수적입니다.
-3. **보드 점유 잠금(Board Reservation Token)**:
-   - 물리 보드는 수량이 한정되어 있습니다. 복수의 에이전트나 엔지니어가 동일한 DUT에 동시에 이미지를 굽거나 리셋을 날리지 않도록, 중앙 락 매니저를 통해 원자적(Atomic) 토큰을 획득한 에이전트만 제어할 수 있도록 강제합니다.
-4. **EDL/Fastboot 비상 복구 자동화**:
-   - 부팅 실패로 커널 진입이 불가할 때, UART 핀 신호 제어나 USB 전원 단속을 통해 칩셋의 비상 다운로드 모드(Qualcomm EDL, Rockchip Maskrom, MediaTek BROM 등)로 강제 진입시켜 클린 팩토리 이미지로 원복하는 안전망을 갖춥니다.
+3. **보드 점유 잠금 및 랩 자동화 (Linaro LAVA & Token Reservation)**:
+   - 물리 보드는 수량이 한정되어 있습니다. 복수의 에이전트나 엔지니어가 동일한 DUT에 동시에 이미지를 굽거나 리셋을 날리지 않도록 중앙 락 매니저를 통해 원자적(Atomic) 토큰을 발급합니다.
+   - 실제 업계에서는 Linaro LAVA(Automated Validation Architecture)와 Qualcomm의 [`qcom-yocto-lava-ci-report`](https://github.com/qualcomm-linux/qcom-linux-skills)처럼, 보드 스케줄링과 플래시/부팅 검증을 통합 파이프라인으로 제어하는 방식이 표준으로 자리잡고 있습니다.
+4. **EDL/Maskrom/Fastboot 비상 복구 자동화**:
+   - 부팅 실패로 커널 진입이 불가할 때, 핀 제어나 USB 전원 단속을 통해 칩셋의 비상 다운로드 모드로 강제 진입시켜 클린 팩토리 이미지로 원복하는 안전망을 갖춥니다.
+   - 예: Qualcomm의 EDL(Emergency Download) 프로토콜 기반 [`qcom-flash-qdl`](https://github.com/qualcomm-linux/qcom-linux-skills), Rockchip의 Maskrom 모드 및 [`rkdeveloptool`](https://github.com/rockchip-linux/rkdeveloptool), NVIDIA 젯슨의 Force Recovery 모드 제어.
 
 ---
 

@@ -54,6 +54,9 @@ Cuttlefish는 구글이 GKI 및 플랫폼 검증을 위해 사용하는 공식 �
 ### 2.2 QEMU ARM64: 초고속 저수준 커널 검증
 커널 드라이버나 부트로더(TF-A, U-Boot), Device Tree의 초기 초기화를 디버깅할 때는 안드로이드 전체 프레임워크가 필요하지 않습니다. QEMU ARM64 가상 머신을 띄우면 수 초 만에 커널 부팅 완료 지점까지 도달하여 드라이버 probe 성공 여부를 검증할 수 있습니다.
 
+### 2.3 Arm Virtual Hardware (AVH): 실리콘 제작 전(Pre-Silicon) 사전 검증
+Arm의 공식 가상 플랫폼인 [`ARM-software/AVH`](https://github.com/ARM-software/AVH)와 Fixed Virtual Platforms(FVPs)는 물리 칩셋이 테이프아웃(Tape-out)되기 전 단계에서도 Cortex-A 아키텍처 상의 커널 부팅과 저수준 펌웨어를 클라우드 CI 환경에서 완벽히 에뮬레이션합니다. 이를 통해 에이전트는 실물 칩셋이 연구소에 입고되기 전부터 가상 환경에서 드라이버와 BSP의 런타임 폐루프를 검증할 수 있습니다.
+
 ---
 
 ## 3. 관측성의 가상화: Perfetto Trace Processor SQL 질의

@@ -21,7 +21,7 @@ date: 2026-10-18 01:00:00 +0900
 동일한 SoC(예: Qualcomm QCS8550)를 사용하더라도, 보드 리비전(Rev A vs Rev B)에 따라 I2C 버스 번호, PMIC LDO 레귤레이터 번호, GPIO 핀맵이 완전히 달라집니다. 에이전트가 웹에 공개된 일반적인 드라이버 코드를 참고해 임의로 Device Tree를 수정하면 하드웨어 쇼트나 부팅 불능이 발생합니다.
 
 ### 아키텍처 해결책: 선언적 Target Profile
-보드와 칩셋의 하드웨어 진실(Single Source of Truth)을 별도의 정형화된 설정 파일로 주입하고, 에이전트가 이를 반드시 읽고 전제로 삼도록 강제합니다.
+보드와 칩셋의 하드웨어 진실(Single Source of Truth)을 별도의 정형화된 설정 파일로 주입하고, 에이전트가 이를 반드시 읽고 전제로 삼도록 강제합니다. 이는 NVIDIA의 [`jetson-bsp-skills`](https://github.com/NVIDIA-AI-IOT/jetson-bsp-skills)가 타깃 명세(Target Profile)를 최상위 계약으로 선언하여 낡은 바이너리(Stale Artifact)의 플래싱을 차단하고, Qualcomm의 [`qcom-device-info`](https://github.com/qualcomm-linux/qcom-linux-skills)가 런타임 하드웨어 프로브 결과와 설정값을 대조하는 접근과 정확히 일치합니다.
 
 - **SoC & 보드 명세**: SoC 파트명, 실리콘 리비전, 보드 HW Rev, PMIC 파트 넘버
 - **빌드 및 환경 Entrypoint**: 커널 브랜치, Defconfig 경로, Toolchain 위치, AOSP lunch 타깃
@@ -38,7 +38,7 @@ date: 2026-10-18 01:00:00 +0900
 하나의 거대한 시스템 프롬프트에 "너는 안드로이드 BSP 전문가야. 소스 보고 알아서 빌드하고 디버깅해서 고쳐줘"라고 지시하는 방식(Do-everything Agent)은 반드시 실패합니다. 컨텍스트가 오염되고 어떤 순서로 판단해야 할지 길을 잃기 때문입니다.
 
 ### 절차 중심의 단위 스킬화
-Qualcomm의 `qcom-linux-skills`나 Google의 `android/skills`처럼, 각 엔지니어링 작업 단위를 작고 명확한 계약(Contract)을 가진 **Skill**로 분율화해야 합니다.
+Qualcomm의 [`qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills), Yocto의 [`yocto-agent-skills`](https://github.com/yocto/yocto-agent-skills), Renesas의 [`renesas-skills`](https://github.com/renesas/renesas-skills)처럼, 각 엔지니어링 작업 단위를 작고 명확한 계약(Contract)을 가진 **Skill**로 모듈화해야 합니다.
 
 각 스킬은 다음 4가지 요소를 엄격히 정의합니다:
 1. **Input (입력)**: 에러 로그 위치, 대상 소스 파일, 타깃 프로필
@@ -46,13 +46,15 @@ Qualcomm의 `qcom-linux-skills`나 Google의 `android/skills`처럼, 각 엔지�
 3. **Procedure (수행 절차)**: 어떤 증거를 먼저 확인하고 어떤 순서로 파일을 수정하는지
 4. **Outcome (산출물)**: 패치 diff, 컴파일된 DTBO, 검증 리포트
 
-| 추천 단위 스킬 | 주 담당 업무 | 비고 |
+| 추천 단위 스킬 | 주 담당 업무 | 참조 벤더 구현 및 비고 |
 |---|---|---|
-| `kernel-build` | 프로젝트 표준 빌드 wrapper/Kleaf 호출 | 독립 `make` 명령 추측 방지 |
+| `kernel-build` | 프로젝트 표준 빌드 wrapper/Kleaf 호출 | 독립 `make` 추측 방지 (NVIDIA/Qualcomm 패턴) |
 | `dts-binding-check` | `dtschema` 및 `dtc`를 통한 문법/바인딩 검사 | 빌드 전 조기 문법 오류 차단 |
-| `kernel-oops-triage` | 패닉 콜스택 파싱 및 호스트 `addr2line` 심볼 매핑 | 타깃 오버헤드 없이 원인 함수 규명 |
-| `patch-backport` | Upstream 커널 커밋 검색 및 충돌(Conflict) 해결 | Git 3-way merge 자동화 |
-| `boot-validate` | UART/dmesg에서 부팅 성공 마커 판정 | OS별(Linux vs Android) 성공 조건 분리 |
+| `kernel-oops-triage` | 패닉 콜스택 파싱 및 호스트 `addr2line` 심볼 매핑 | Intel [`linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) 기반 심볼 역추적 |
+| `yocto-doc-router` | 프로젝트 릴리즈 버전에 맞는 공식 문서 라우팅 | [`yocto-agent-skills`](https://github.com/yocto/yocto-agent-skills) (BitBake 문법 환각 방지) |
+| `configure-debug` | 타깃 하드웨어 디버거 및 launch.json 설정 | Renesas [`configure-renesas-debug`](https://github.com/renesas/renesas-skills) |
+| `patch-backport` | Upstream 커널 커밋 검색 및 충돌(Conflict) 해결 | Qualcomm `qcom-kernel-platform-backport` (DTS 의존성 추적) |
+| `boot-validate` | UART/dmesg에서 부팅 성공 마커 판정 | Qualcomm `qcom-boot-validate` (PASS/FAIL 판정) |
 
 ---
 
@@ -105,6 +107,8 @@ ORDER BY ts;
 - 런타임 작업에서는 대상 보드·이미지 식별을 기록하고, 해당 드라이버의 기능별 관측 기준을 확인
 - 정해진 회귀 테스트(VTS/CTS 또는 로컬 테스트) 통과
 
+실제 업계에서도 Qualcomm은 LAVA 랩 테스트 결과와 부팅 검증 스킬([`qcom-yocto-lava-ci-report`](https://github.com/qualcomm-linux/qcom-linux-skills), `qcom-boot-validate`)에서 종료 코드로 판정하고, NVIDIA 역시 [`jetson-validate-image`](https://github.com/NVIDIA-AI-IOT/jetson-bsp-skills)를 통해 사전에 작성된 검증 스크립트 결과로만 다음 단계(Promote) 승격을 허용합니다.
+
 ### 비파괴 기본 원칙 (Non-destructive Default)
 물리 장치를 다루는 BSP 환경에서는 에이전트의 권한을 엄격히 계층화해야 합니다.
 
@@ -127,6 +131,8 @@ ORDER BY ts;
 - `run.json`: 실행 메타데이터, 사용된 모델, 타깃 프로필, 시작/종료 시각
 - `events.jsonl`: 에이전트가 실행한 모든 명령, 종료 코드, 상태 전이 기록
 - `evidence/`: 원본 dmesg, UART 덤프, 빌드 실패 로그 스냅샷
+
+이는 Google AndroidX의 [Git Worktree 기반 격리(`AGENTS.md`)](https://android.googlesource.com/platform/frameworks/support/+/f91db2f7ac997fe61637d7e1446afe2e8c110103/.agents/)와 NVIDIA의 아티팩트 매니페스트(`state.json`) 관리 패턴과 일치합니다.
 
 ```text
 Source (Git Commit / Diff Hash)
