@@ -57,27 +57,71 @@ BSP의 Agentic Engineering은 **"확인된 타깃 정보 + 작업에 맞는 절�
 
 ---
 
-## 3. 공개 사례에서 확인되는 구현과 제안
+## 3. 글로벌 실리콘 벤더와 주요 기업들의 AI Shift 지형도
 
-공개 자료는 각 조직의 내부 AI 활용도를 보여주는 완전한 지표가 아닙니다. 아래는 공개 저장소와 문서에서 **직접 확인할 수 있는 작업 흐름**의 예입니다. L1~L6 점수로 조직 전체를 순위화하지 않습니다.
+공개 자료는 각 조직의 내부 AI 활용도를 보여주는 완전한 지표가 아닙니다. 외부로 공개된 오픈소스 저장소, 개발자 문서, RFC 제안에서 **직접 검증 가능한 작업 흐름(Verifiable Workflow)**을 바탕으로 글로벌 벤더들의 현주소를 분석합니다.
 
-> 공개 사례의 부재만으로 해당 회사 내부에서 AI를 사용하지 않는다고 결론 내릴 수는 없습니다.
+> [!NOTE]
+> **공개 수준과 내부 역량의 분리 (NDA Boundary)**
+> 공개 Agent Skill의 부재가 해당 기업 내부에서 AI를 쓰지 않는다는 의미는 결코 아닙니다. 반도체 벤더 특성상 고객사 전용 BSP, 독점 펌웨어, 내부 검증 인프라는 엄격한 기밀유지협약(NDA)에 묶여 있기 때문입니다. 따라서 아래의 분석은 외부 엔지니어가 직접 재현하고 참조할 수 있는 **'공개 엔지니어링 에이전트 성숙도'**를 기준으로 합니다.
 
-| 프로젝트 | 공개 자료에서 확인되는 것 | 범위와 주의점 |
-|---|---|---|
-| [AndroidX Agent Skills](https://android.googlesource.com/platform/frameworks/support/+/f91db2f7ac997fe61637d7e1446afe2e8c110103/.agents/) | 테스트, 커밋, 격리된 작업공간 등 저장소 작업 절차 | Android 앱/BSP 전반의 자율화 수준을 뜻하지 않음 |
-| [Perfetto AI 가이드](https://perfetto.dev/docs/getting-started/using-ai)와 [RFC-0025](https://github.com/google/perfetto/discussions/5763) | 에이전트용 trace Skill과 AI 통합 방향. RFC는 진행 중인 설계 제안 | RFC에 적힌 항목 모두가 현재 구현됐다는 뜻은 아님 |
-| [Linux Kernel event tracing](https://docs.kernel.org/trace/events.html) | trace event의 필드 형식과 구조화된 수집 기반 | AI 전용으로 새로 만들어진 인터페이스는 아님 |
-| [Qualcomm Linux Skills](https://github.com/qualcomm-linux/qcom-linux-skills) | meta-qcom 빌드, QDL, 커널 backport, 부팅 검증을 위한 개별 절차 | Qualcomm Linux 공개 프로젝트를 대상으로 함. 모든 Qualcomm Android BSP를 포괄하지 않음 |
-| [NVIDIA Jetson Skills](https://github.com/NVIDIA/skills) | 이미지 준비·승격·플래시·검증 단계를 잇는 작업 절차 | 공개된 기술 흐름의 사례이며 내부 성숙도 순위는 아님 |
-| [Intel Linux Kernel Oops Skill](https://github.com/intel/linux-kernel-oops) | Oops에서 정보를 구조화해 뽑고 디버그 심볼로 분석하는 절차 | 공개 문서상 x86 중심. ARM64 BSP에 그대로 적용할 수 없음 |
+### 3.1 실리콘 벤더의 Agentic 성숙도 3대 그룹 분류
 
-### 이 사례들이 보여주는 설계 원칙
+업계의 주요 플레이어들은 AI를 다루는 방식과 공개 수준에 따라 크게 3개 그룹으로 나뉩니다:
 
-1. **분석은 원본 증거에서 출발합니다.** Perfetto Trace Processor는 trace를 SQL로 질의하고, 결과를 재현 가능한 형태로 살펴볼 수 있게 합니다. [CLI 문서에는 에이전트용 출력 모드](https://perfetto.dev/docs/reference/trace-processor-cli)도 설명되어 있습니다.
-2. **작업 절차를 작게 나누고 전제를 적습니다.** Qualcomm의 스킬 카탈로그는 빌드, 플래시, 부팅 검증 등을 각각 별도 절차로 제공합니다.
-3. **위험한 단계와 검증 단계를 구분합니다.** NVIDIA의 공개 흐름은 이미지 준비, 배포, 장치 플래시·검증을 이어주며, 각 단계가 무엇을 전제로 하는지 기록합니다.
-4. **L점수보다 검증 가능한 업무 범위를 봅니다.** BSP 프로젝트에 적용할 때는 실제 대상과 산출물이 절차의 전제에 맞는지 확인해야 합니다.
+| 그룹 구분 | 대표 기업 및 프로젝트 | On-device AI 제품 | 공개 AI-for-Engineering 수준 | 특징 및 주력 방향 |
+|---|---|:---:|:---:|---|
+| **Group A<br/>(Agent-Native 선도)** | Google (AndroidX, Perfetto),<br/>NVIDIA (Jetson),<br/>Qualcomm (Qualcomm Linux) | 매우 높음 | **매우 높음 ~ 높음<br/>(L3~L5)** | 공식 Agent Skill 카탈로그, 워크플로 체이닝, 격리 작업공간, Gerrit CI 연계 등 E2E 절차 공개 |
+| **Group B<br/>(Agent-Ready / 전환 착수)** | MediaTek (Genio),<br/>Renesas,<br/>STMicroelectronics, NXP 등 | 높음 | **중간 ~ 초기<br/>(L2~L3)** | CLI/SDK 도구와 문서가 구조화되어 있어 에이전트 도구 연동이 용이하며, 공식 스킬 리포지토리나 전용 AI 어시스턴트 도입 시작 |
+| **Group C<br/>(Traditional BSP 중심)** | Rockchip,<br/>Allwinner 계열,<br/>중소 SoC 벤더 | 보통~높음 | **초기 / 보조 도구 중심<br/>(L1~L2)** | 전통적 Git/tarball 소스 트리, 독점 바이너리 펌웨어(DDR/BL31 blob), 전용 플래시 툴(CLI) 중심 구조 유지 |
+
+---
+
+### 3.2 주요 기업별 공개 현황과 엔지니어링 시사점
+
+#### 1. Google: 저장소 격리와 테스트 훈육 (Discipline)
+- **[AndroidX Agent Skills](https://android.googlesource.com/platform/frameworks/support/+/f91db2f7ac997fe61637d7e1446afe2e8c110103/.agents/) (`AGENTS.md`)**: 에이전트가 코드를 건드리기 전 격리된 작업공간(Worktree)을 만들고, 단위 테스트를 돌려 변경 전후를 비교하며, 승인된 형식으로만 커밋하도록 강제하는 **엄격한 저장소 훈육 규칙**을 정립했습니다.
+- **[Perfetto AI 가이드](https://perfetto.dev/docs/getting-started/using-ai) & [RFC-0025](https://github.com/google/perfetto/discussions/5763)**: 수백 MB의 시스템 트레이스를 모델에 직접 밀어 넣지 않고, Trace Processor를 통해 에이전트가 필요한 구간만 SQL로 정밀 질의할 수 있는 [CLI agent mode](https://perfetto.dev/docs/reference/trace-processor-cli)와 인터페이스 표준을 구축하고 있습니다.
+
+#### 2. Qualcomm: 작고 명확한 Non-destructive BSP 절차
+- **[Qualcomm Linux Skills](https://github.com/qualcomm-linux/qcom-linux-skills)**: Qualcomm은 "AI에게 코드를 통째로 맡긴다"가 아니라, **BSP 엔지니어의 작업 절차(Procedure)를 작은 스킬로 모듈화**하는 전략을 취합니다.
+- 기기 식별(`qcom-device-info`), Yocto 빌드(`qcom-yocto-build-image`), QDL 플래시(`qcom-flash-qdl`), 부팅 검증(`qcom-boot-validate`), 커널 백포트(`qcom-kernel-platform-backport`) 등 단계별로 입출력과 전제조건을 명시하고, 비파괴(Non-destructive) 기본 원칙과 명확한 PASS/FAIL 기준을 제시합니다.
+
+#### 3. NVIDIA: Target Profile 기반 E2E 파이프라인
+- **[NVIDIA Jetson Skills](https://github.com/NVIDIA/skills)**: 임베디드 리눅스/보드 환경에서 가장 완성도 높은 E2E Chaining 모델을 보여줍니다.
+- 하드웨어 형상을 선언하는 `Target Profile`을 기반으로, `Setup → Customize (카메라/핀믹스/PCIe) → Build → Promote → Flash → Validate`로 이어지는 다단계 프로모션 파이프라인을 구축했습니다. 상위 스킬이 하위 스킬을 호출하고, 산출물 상태(State)를 파일로 남겨 낡은 빌드(Stale Artifact)의 플래싱을 원천 방지합니다.
+
+#### 4. MediaTek: 온디바이스 AI와 엔지니어링 AI의 경계
+- MediaTek은 스마트폰 및 IoT(Genio) 분야에서 강력한 칩셋과 NeuroPilot NPU 런타임을 보유하고 있어 **'AI on Silicon'** 역량은 최상위권입니다.
+- 하지만 **'AI for BSP Engineering'** 관점에서는 공식 Agent Skill 카탈로그의 외부 공개가 상대적으로 제한적입니다. 이는 대다수 안드로이드 BSP와 칩셋 드라이버가 고객사 전용 NDA 경계 내에서 개발되기 때문입니다.
+- 그럼에도 불구하고 Genio 플랫폼의 AOSP/Yocto 빌드 래퍼 및 호스트 CLI 도구가 체계화되어 있어, 조직 내부에서 Target Profile과 호환성 리졸버(Compatibility Resolver) 스킬만 얹으면 매우 빠르게 L4 수준으로 도약할 수 있는 높은 잠재력을 가지고 있습니다.
+
+#### 5. Rockchip: 실전 E2E 에이전틱 실험의 최적 플랫폼
+- Rockchip은 전통적인 오픈소스 커널/U-Boot 리포지토리와 독점 바이너리 패키지([rkbin](https://github.com/rockchip-linux/rkbin)), 플래시 툴([rkdeveloptool](https://github.com/rockchip-linux/rkdeveloptool)) 체제를 유지하고 있습니다.
+- 공식 AI 에이전트 스킬은 공개되어 있지 않지만, **실제 임베디드 현장의 폐루프 실험용으로는 가장 현실적인 타깃**입니다. 오픈소스 영역(Kernel, DTS, U-Boot)은 에이전트에게 소스 레벨 심층 분석을 맡기고, 비공개 영역(DDR 초기화 바이너리, BL31 신뢰 펌웨어)은 릴리즈 노트와 버전 출처(Provenance) 정합성 검사로 역할을 분리하여 처리하는 실전형 아키텍처를 검증하기에 적합합니다.
+
+#### 6. Renesas & ST: 임베디드 벤더의 지식 자산화
+- **Renesas**: 중견 실리콘 벤더 가운데 공식 에이전트 스킬 리포지토리([renesas-skills](https://github.com/renesas/renesas-skills))를 공개하며 자사 SoC의 디버거 설정과 BSP 지식을 에이전트가 읽을 수 있는 형태로 변환하기 시작했습니다.
+- **STMicroelectronics**: [STM32 Sidekick](https://www.st.com/content/st_com/en/about/ai-at-st/stm32-sidekick.html)처럼 방대한 데이터시트, 레퍼런스 매뉴얼, 애플리케이션 노트를 임베딩하여 엔지니어의 질의에 정확한 근거를 제시하는 문서 기반 어시스턴트(Grounded Assistant, L1~L2)에 집중하고 있습니다.
+
+---
+
+### 3.3 'Traditional BSP'의 역설: 덜 자동화된 환경일수록 AI ROI가 더 크다
+
+실리콘 벤더 지형도를 분석하면서 얻을 수 있는 가장 중요한 공학적 통찰은 다음과 같습니다:
+
+> **"이미 CI/CD가 완벽히 갖춰진 최첨단 환경(Group A)보다, 오히려 문서가 파편화되어 있고 수작업 빌드/플래시가 만연한 전통적 BSP 환경(Group C)에서 Agentic Shift의 실질적 투자 수익률(ROI)이 훨씬 더 높을 수 있다."**
+
+```text
+[ 전통적 BSP 환경의 엔지니어 수작업 병목 ]
+PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ──▶ 바이너리 펌웨어 버전 대조 ──▶ 수작업 빌드 ──▶ 수동 플래시 ──▶ 시리얼 터미널 육안 확인
+               ▲                                                                                                    │
+               └────────────────────── 문제 발생 시 수작업 디버깅 루프 무한 반복 ────────────────────────────────────┘
+```
+
+전통적 환경에서는 엔지니어가 코드 작성보다 **"맞는 브랜치 찾기, 누락된 DTS 속성 찾기, 바이너리 펌웨어 버전 충돌 해결, 플래시 툴 옵션 맞추기"**와 같은 반복적 조사와 환경 세팅(Human Touch)에 대부분의 시간을 뺏깁니다.
+
+이 반복 과정을 `target-profile`과 `focused-skills`로 묶어 에이전트에게 위임하면, 엔지니어의 직접 투입 시간(Human Touch Time)을 극적으로 절감하는 효과를 거둘 수 있습니다. 즉, 에이전틱 전환의 가치는 벤더의 최신 기술 유무가 아니라 **"현재 우리 팀의 업무 파이프라인에서 사람이 낭비하고 있는 병목이 어디에 있는가"**에 정비례합니다.
 
 ---
 
