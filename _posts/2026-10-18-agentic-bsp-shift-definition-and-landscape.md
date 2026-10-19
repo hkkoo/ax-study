@@ -81,6 +81,7 @@ BSP의 Agentic Engineering은 **"확인된 타깃 정보 + 작업에 맞는 절�
 | **Renesas** | R-Car, RZ 시리즈,<br/>e2 studio | • [renesas/renesas-skills](https://github.com/renesas/renesas-skills) | **L2 ~ L3** | `npx skills` 배포 체계, `.vscode/launch.json` 디버거 설정 자동화(`configure-renesas-debug`), RTOS 디버깅 |
 | **STMicroelectronics** | STM32MP1/MP2 (MPU),<br/>OpenSTLinux | • [STM32 Sidekick](https://www.st.com/content/st_com/en/about/ai-at-st/stm32-sidekick.html)<br/>• STM32CubeAI | **L1 ~ L2** | 방대한 데이터시트/레퍼런스 매뉴얼 기반 Grounded RAG AI Assistant, 엣지 AI 모델 배포 툴체인 |
 | **Rockchip** | RK3588/RK3568,<br/>Rockchip Linux BSP | • [rockchip-linux](https://github.com/rockchip-linux)<br/>• `rkbin`, `rkdeveloptool` | **L1 ~ L2** | 전통적 Git/tarball 및 독점 바이너리(`rkbin`) 중심. 소스 분석과 바이너리 출처 검증 분리 실험의 최적 플랫폼 |
+| **Android Kernel / AOSP** | Android GKI (6.1/6.6/6.12),<br/>AOSP Low-Level, Vendor Modules | • [jonaschen/Android-Software](https://github.com/jonaschen/Android-Software)<br/>• [tzussman/kernel-dev-skill](https://github.com/tzussman/kernel-dev-skill)<br/>• [gitcomit8/agent-skills](https://github.com/gitcomit8/agent-skills) | **L3 ~ L4** | GKI KMI ABI 심볼 검증(`L2-kernel-gki-expert`), 칩셋별 브링업(`L3-qualcomm-kernel`, `L3-mediatek-kernel`), 부트로더(LK), ATF 및 업스트림 커널 패치 워크플로 스킬 |
 | **Arm / Linaro** | Cortex-A/M, Arm Virtual Hardware,<br/>LAVA Test Lab | • [ARM-software/AVH](https://github.com/ARM-software/AVH)<br/>• Linaro LAVA Lab Automation | **L4 ~ L5 (인프라)** | 실리콘 없는 가상 플랫폼(FVP) 기반 CI/CD 파이프라인, 보드 팜 원격 제어 및 테스트 자동화 표준 |
 
 ---
@@ -148,17 +149,26 @@ NVIDIA는 임베디드 리눅스/보드 환경에서 가장 완성도 높은 **�
 - **STMicroelectronics ([STM32 Sidekick](https://www.st.com/content/st_com/en/about/ai-at-st/stm32-sidekick.html))**:
   - 방대한 칩셋 데이터시트, 레퍼런스 매뉴얼, 애플리케이션 노트를 정확히 임베딩한 Grounded RAG 어시스턴트를 제공하여, 엔지니어가 수천 페이지의 PDF를 직접 뒤적이지 않고도 레지스터 비트 정의와 전기적 특성을 질의할 수 있는 환경(L1~L2)을 구축했습니다.
 
+#### 8. Android Kernel & AOSP Subsystem 전문 스킬 생태계
+- **Android GKI 및 벤더 모듈 전용 스킬 ([`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software))**:
+  - Google의 공식 `android/skills`가 주로 앱/프레임워크(Jetpack, CameraX 등)에 치중된 것과 달리, 이 리포지토리는 **안드로이드 저수준 플랫폼과 커널(GKI) 및 BSP 엔지니어링에 특화된 스킬 카탈로그**를 제공합니다.
+  - **`L2-kernel-gki-expert`**: GKI(Generic Kernel Image) 소스 트리 관리, KMI(Kernel Module Interface) 안정 심볼 목록(`abi_gki_aarch64.xml`) 검증, `vmlinux.symvers` ABI 불일치 해결, 아웃오브트리 벤더 드라이버(`.ko`) 빌드 및 Device Tree Overlay(`.dtbo`) 수정 절차를 체계화했습니다.
+  - **SoC 벤더별 특화 스킬**: `L3-qualcomm-kernel-expert`, `L3-mediatek-kernel-expert` 등 칩셋별 브링업 스킬과 `L2-bootloader-lk-expert`, `L2-trusted-firmware-atf-expert`, `L2-init-boot-sequence-expert` 등 부팅 전 과정의 하위 전문 스킬을 계층화했습니다.
+- **리눅스 커널 개발 워크플로 스킬 ([`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill) & [`gitcomit8/agent-skills`](https://github.com/gitcomit8/agent-skills))**:
+  - `kernel-dev-skill`: 업스트림 커널 개발 절차인 `git bisect`, `git rebase`, `virtme-ng` 가상 머신 테스트, `b4` 패치 제출을 에이전트 스킬로 구현했습니다.
+  - `agent-skills`: 캐릭터/플랫폼 드라이버 개발(`linux-driver-development`), `ftrace`/`kprobes` 디버깅(`kernel-debug-helper`), 커널 패치 리뷰(`linux-kernel-patch-review`) 절차를 지원합니다.
+
 ---
 
 ### 3.4 Group C (전통적 BSP) 및 오픈소스 컨소시엄
 
-#### 8. Rockchip: 실전 E2E 에이전틱 루프의 최적 테스트베드
+#### 9. Rockchip: 실전 E2E 에이전틱 루프의 최적 테스트베드
 - **오픈소스와 독점 바이너리의 공존**:
   - Rockchip 생태계는 커널, U-Boot, Device Tree가 공개되어 있는 반면, DDR 초기화 바이너리와 BL31/BL32 Trust 펌웨어는 비공개 패키지([`rkbin`](https://github.com/rockchip-linux/rkbin))로 제공되며, 전용 플래시 도구([`rkdeveloptool`](https://github.com/rockchip-linux/rkdeveloptool))를 사용합니다.
 - **실전 연구 가치**:
   - 공식 AI 스킬은 없지만, **오픈소스 영역(코드 및 DT 심층 디버깅)과 폐쇄 영역(바이너리 펌웨어 버전 대조 및 출처 추적)의 역할을 분리하는 에이전틱 아키텍처**를 실험하고 증명하기에 가장 이상적인 타깃입니다.
 
-#### 9. Arm 가상 플랫폼(AVH)과 Linaro LAVA
+#### 10. Arm 가상 플랫폼(AVH)과 Linaro LAVA
 - **무실리콘 검증 인프라 ([`ARM-software/AVH`](https://github.com/ARM-software/AVH))**:
   - Arm Virtual Hardware(AVH) 및 Fixed Virtual Platforms(FVPs)는 물리 실리콘 칩셋이 나오기 전(Pre-Silicon) 단계에서 클라우드 CI/CD 상에 완전한 가상 타깃을 띄워 드라이버와 BSP 부팅을 사전 검증할 수 있는 환경을 제공합니다.
 - **Linaro LAVA (Automated Validation Architecture)**:
