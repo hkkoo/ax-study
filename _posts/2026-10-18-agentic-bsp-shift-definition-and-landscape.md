@@ -146,41 +146,56 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 
 | 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
 |---|---|---|---|---|
-| **`jonaschen/Android-Software`** | AOSP 저수준,<br/>GKI, LK, ATF, HAL | Markdown 계층 계약<br/>(L1/L2/L3 계층 라우팅) | **`Forbidden Actions` 필수화** (최소 5개),<br/>Path Scope 화이트리스트 | `skill_lint.py` 정적 검증,<br/>`references/` 마크다운 지식 |
-| **`jonaschen/ai-bsp-agent`** | Android/Linux BSP<br/>RCA 진단 (v6.8) | **결정론적 Python Tools**<br/>(`skills/bsp_diagnostics/`) | 정규식 조기부팅 선별(LLM 우회),<br/>입출력 Pydantic 스키마 강제 | 539개 단위/통합 테스트,<br/>`skill_improvement.py` 자가 학습 |
-| **`ai-bsp-knowledge-skill-sets`** | SoC 하드웨어 지식,<br/>DVFS, 전원, 클록 트리 | Claude Code 스킬 +<br/>임베디드 그래프 DB (Kuzu) | 원시 레지스터 주소 검증기,<br/>중복 노드 방지 멱등성 보장 | **380+ 정량 회귀 테스트(Eval)**,<br/>`hardware-spec-extractor` (TRM/XML) |
-| **`qualcomm-linux/qcom-linux-skills`** | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
-| **`Higangssh/yocto-agent-skills`** | Yocto Project,<br/>BitBake 빌드 트리아지 | 릴리즈 인지 라우팅 +<br/>참조 문서 점진적 노출 | 버전 간 문법 오염 원천 차단,<br/>`do_compile` 에러 구간 추출 | `evals/cases/` 프롬프트 벤치마크,<br/>QA 에러 및 오버라이드 가이드 |
-| **`intel/linux-kernel-oops`** | x86 Linux 커널<br/>Panic/Oops 분석 | Stack Trace 파서 +<br/>`decode_stacktrace.sh` | 디버그 심볼(`vmlinux`) 필수 요구,<br/>구조화된 RCA 템플릿 강제 | First Bad Frame 심볼 역추적,<br/>`evals/` 모의 크래시 검증 |
-| **`tzussman/kernel-dev-skill`** | Linux 커널 업스트림<br/>워크플로 자동화 | 공식 CLI 도구 래퍼<br/>(`b4`, `virtme-ng`, `git-bisect`) | 가상화 마이크로VM 격리 실행,<br/>Git 워크트리 변경 격리 | Linux 커널 개발 워크플로 매핑,<br/>Mailing List 패치 검증 |
-| **`gitcomit8/agent-skills`** | Linux 드라이버 개발,<br/>ftrace, kprobes | 태스크 단위 Markdown 스킬<br/>(드라이버 보일러플레이트) | 단계별 커널 체크패치(`checkpatch.pl`),<br/>코딩 컨벤션 검사 | I2C/SPI 드라이버 참조 코드,<br/>커널 디버깅 헬퍼 가이드 |
-| **`NVIDIA/skills`** | Jetson / Robotics<br/>엔터프라이즈 스킬 | Agent Skills Spec 준수<br/>(Skill Cards + 서명) | **SkillSpector 보안 스캔**, 암호 서명,<br/>Capability Governance 정책 | `evaluating-agent-skills.mdx`,<br/>Skill Card 표준 메타데이터 |
-| **`renesas/renesas-skills`** | Renesas R-Car / MPU<br/>VS Code IDE 연동 | `npx skills` 배포 패키지 +<br/>`launch.json` 설정기 | 하드웨어 디버거(J-Link/E2) 파라미터 유효성,<br/>GDB 명령 검증 | 벤더 하드웨어 디버거 매핑,<br/>RTOS 스레드 인지 디버깅 설정 |
+| [`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software)<br/>*(AOSP 저수준 플랫폼)* | AOSP 저수준,<br/>GKI, LK, ATF, HAL | Markdown 계층 계약<br/>(L1/L2/L3 계층 라우팅) | **`Forbidden Actions` 필수화** (최소 5개),<br/>Path Scope 화이트리스트 | `skill_lint.py` 정적 검증,<br/>`references/` 마크다운 지식 |
+| [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)<br/>*(원저장소: jonaschen)* | Android/Linux BSP<br/>RCA 진단 (v6.8) | **결정론적 Python Tools**<br/>(`skills/bsp_diagnostics/`) | 정규식 조기부팅 선별(LLM 우회),<br/>입출력 Pydantic 스키마 강제 | 539개 단위/통합 테스트,<br/>`skill_improvement.py` 자가 학습 |
+| [`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets)<br/>/ [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets) | SoC 하드웨어 지식,<br/>DVFS, 전원, 클록 트리 | Claude Code 스킬 +<br/>임베디드 그래프 DB (Kuzu) | 원시 레지스터 주소 검증기,<br/>중복 노드 방지 멱등성 보장 | **380+ 정량 회귀 테스트(Eval)**,<br/>`hardware-spec-extractor` (TRM/XML) |
+| [`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills) | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
+| [`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills) | Yocto Project,<br/>BitBake 빌드 트리아지 | 릴리즈 인지 라우팅 +<br/>참조 문서 점진적 노출 | 버전 간 문법 오염 원천 차단,<br/>`do_compile` 에러 구간 추출 | `evals/cases/` 프롬프트 벤치마크,<br/>QA 에러 및 오버라이드 가이드 |
+| [`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) | x86 Linux 커널<br/>Panic/Oops 분석 | Stack Trace 파서 +<br/>`decode_stacktrace.sh` | 디버그 심볼(`vmlinux`) 필수 요구,<br/>구조화된 RCA 템플릿 강제 | First Bad Frame 심볼 역추적,<br/>`evals/` 모의 크래시 검증 |
+| [`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill) | Linux 커널 업스트림<br/>워크플로 자동화 | 공식 CLI 도구 래퍼<br/>(`b4`, `virtme-ng`, `git-bisect`) | 가상화 마이크로VM 격리 실행,<br/>Git 워크트리 변경 격리 | Linux 커널 개발 워크플로 매핑,<br/>Mailing List 패치 검증 |
+| [`gitcomit8/agent-skills`](https://github.com/gitcomit8/agent-skills)<br/>*(내부 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) 포함)* | Linux 드라이버 개발,<br/>ftrace, kprobes | 태스크 단위 Markdown 스킬<br/>(드라이버 보일러플레이트) | 단계별 커널 체크패치(`checkpatch.pl`),<br/>코딩 컨벤션 검사 | I2C/SPI 드라이버 참조 코드,<br/>커널 디버깅 헬퍼 가이드 |
+| [`NVIDIA/skills`](https://github.com/NVIDIA/skills) | Jetson / Robotics<br/>엔터프라이즈 스킬 | Agent Skills Spec 준수<br/>(Skill Cards + 서명) | **SkillSpector 보안 스캔**, 암호 서명,<br/>Capability Governance 정책 | `evaluating-agent-skills.mdx`,<br/>Skill Card 표준 메타데이터 |
+| [`renesas/renesas-skills`](https://github.com/renesas/renesas-skills) | Renesas R-Car / MPU<br/>VS Code IDE 연동 | `npx skills` 배포 패키지 +<br/>`launch.json` 설정기 | 하드웨어 디버거(J-Link/E2) 파라미터 유효성,<br/>GDB 명령 검증 | 벤더 하드웨어 디버거 매핑,<br/>RTOS 스레드 인지 디버깅 설정 |
 
 ---
 
 ### 4.2 10대 저장소에서 도출한 핵심 설계 특징
 
-#### 1. "결정론적 추론 우선(Deterministic over Autonomy)" 원칙 (`ai-bsp-agent`)
-LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각이 발생합니다. `ai-bsp-agent`는 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, **실제 계산과 로그 추출은 100% 순수 파이썬 도구(`skills/bsp_diagnostics/`)**에 위임합니다. 특히 초기 부팅 로그(TF-A, LK, U-Boot)는 순수 정규식으로 선별하여 LLM 호출 자체를 건너뜁니다.
+#### 1. "결정론적 추론 우선(Deterministic over Autonomy)" 원칙 ([`ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent))
+LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각이 발생합니다. [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)(원저장소: `jonaschen`)는 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, **실제 계산과 로그 추출은 100% 순수 파이썬 도구(`skills/bsp_diagnostics/`)**에 위임합니다. 특히 초기 부팅 로그(TF-A, LK, U-Boot)는 순수 정규식으로 선별하여 LLM 호출 자체를 건너뜁니다.
 
-#### 2. MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 (`Android-Software`)
-5,000만 줄이 넘는 AOSP에서 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염됩니다. `Android-Software`는 CPU의 MMU(Memory Management Unit)처럼 동작하는 **3계층 구조**를 취합니다:
+#### 2. MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 ([`Android-Software`](https://github.com/jonaschen/Android-Software))
+5,000만 줄이 넘는 AOSP에서 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염됩니다. [`Android-Software`](https://github.com/jonaschen/Android-Software)는 CPU의 MMU(Memory Management Unit)처럼 동작하는 **3계층 구조**를 취합니다:
 * **L1 Router**: 사용자 질의를 분석하여 generic AOSP 서브시스템으로 분기
 * **L2 Subsystem Expert**: `hardware/interfaces/`, `system/sepolicy/` 등 허용된 디렉터리(`path_scope`) 내에서만 탐색
 * **L3 OEM/SoC Expert**: `vendor/<oem>/`, `device/<oem>/` 등 벤더 고유 디렉터리로의 오버라이드 및 이관 처리
 
-#### 3. 하드웨어 지식의 구조화 및 규격서 자동 추출 (`ai-bsp-knowledge-skill-sets`)
-단순 텍스트 매뉴얼을 벡터 DB에 임베딩하는 방식은 레지스터 비트 필드나 전원 시퀀싱 같은 정밀 하드웨어 관계를 보장하지 못합니다. 이 프로젝트는 **Kuzu 임베디드 그래프 DB**를 활용하여 레지스터, 클록 소스, 파워 도메인의 물리적 의존성을 모델링하며, **`hardware-spec-extractor`**를 통해 IP-XACT 2022 XML 및 PDF TRM에서 레지스터 맵을 자동 추출합니다.
+#### 3. 하드웨어 지식의 구조화 및 규격서 자동 추출 ([`ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets))
+단순 텍스트 매뉴얼을 벡터 DB에 임베딩하는 방식은 레지스터 비트 필드나 전원 시퀀싱 같은 정밀 하드웨어 관계를 보장하지 못합니다. 이 프로젝트([`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets) / [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets))는 **Kuzu 임베디드 그래프 DB**를 활용하여 레지스터, 클록 소스, 파워 도메인의 물리적 의존성을 모델링하며, **`hardware-spec-extractor`**를 통해 IP-XACT 2022 XML 및 PDF TRM에서 레지스터 맵을 자동 추출합니다.
 
-#### 4. 파괴적 작업과 사후 검증의 엄격한 분리 (`qcom-linux-skills`)
+#### 4. 파괴적 작업과 사후 검증의 엄격한 분리 ([`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills))
 보드를 다루는 스킬은 절대 '수정과 검증'을 한 번에 섞어 실행하지 않습니다. 플래싱을 수행하는 변이 스킬(`qcom-flash-qdl`)과 시리얼 콘솔을 열어 정상 부팅 여부를 판정하는 검증 스킬(`qcom-boot-validate`)이 명확히 분리되어 있으며, 검증 스킬은 모호한 자연어가 아닌 `exit 0` 종료 코드와 `BOOT-VALIDATION: PASS / FAIL` 펜스 태그를 반환합니다.
 
-#### 5. 점진적 노출(Progressive Disclosure)과 스킬 린트 (`skill-creator` & `skill_lint.py`)
-Anthropic의 공식 `skill-creator` 표준과 `Android-Software`의 `skill_lint.py`는 스킬 파일의 토큰 낭비를 원천 차단합니다:
+#### 5. 점진적 노출(Progressive Disclosure)과 스킬 린트 ([`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) & `skill_lint.py`)
+Anthropic의 공식 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) 표준과 `Android-Software`의 `skill_lint.py`는 스킬 파일의 토큰 낭비를 원천 차단합니다:
 * **Level 1 (Metadata)**: 프런트매터(`name`, `description`)만 상시 컨텍스트에 유지 (~100 단어)
 * **Level 2 (SKILL.md 본문)**: 스킬이 트리거되었을 때만 로드 (<500 라인)
 * **Level 3 (번들 리소스)**: `references/`, `scripts/`는 필요할 때만 선별 호출
+
+#### 6. Oops 스택 트레이스 파싱과 디버그 심볼 역추적 ([`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops))
+커널 패닉 발생 시 원시 텍스트 로그를 그대로 LLM에 던지는 대신, 스택 트레이스를 정규화하여 파싱하고 `decode_stacktrace.sh`를 통해 `vmlinux`의 디버그 심볼과 대조합니다. 크래시를 유발한 First Bad Frame의 C 소스 파일명과 정확한 라인 번호를 도출하여 진단 시간을 획기적으로 단축합니다.
+
+#### 7. Yocto 릴리즈 인지 라우팅과 BitBake 태스크 트리아지 ([`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills))
+Yocto의 릴리즈별(Dunfell, Kirkstone, Scarthgap 등) 문법 변경(`_append` vs `:append`)으로 인한 에이전트의 문법 환각을 방지하기 위해 `yocto-doc-router`가 해당 릴리즈의 공식 문서만 선별 공급합니다. 또한 수만 줄의 BitBake 로그 중 `do_compile`, `do_package_qa` 구간만 정규화하여 추출합니다.
+
+#### 8. 업스트림 커널 메일링리스트 및 마이크로VM 자동화 ([`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill))
+`b4` CLI를 통한 lore.kernel.org 패치 수신 및 적용, `virtme-ng`를 통한 컴파일 커널의 1초 마이크로VM 즉시 부팅 테스트, `git bisect`를 활용한 회귀 커밋 자동 탐색 등 업스트림 커널 개발 워크플로를 온전히 스킬화했습니다.
+
+#### 9. 엔터프라이즈 스킬 보안 스캔과 디지털 서명 거버넌스 ([`NVIDIA/skills`](https://github.com/NVIDIA/skills))
+NVIDIA는 에이전트 스킬을 실무 파이프라인에 투입하기 위해 **Capability Governance** 체계를 구축했습니다. 스킬 카드(Skill Card)에 책임자, 사용 목적, 위험 및 완화책을 명시하고, `SkillSpector` 정적 분석기와 `.oms.sig` 암호 서명을 통해 검증된 스킬만 실행되도록 통제합니다.
+
+#### 10. 임베디드 디버거 프로브 및 IDE 런치 구성 자동화 ([`renesas/renesas-skills`](https://github.com/renesas/renesas-skills))
+J-Link, E2/E2Lite 등 벤더 고유의 하드웨어 JTAG/SWD 디버거 프로브와 GDB 서버, RTOS 스레드 인지 디버깅을 위한 VS Code `.vscode/launch.json` 설정을 에이전트가 단일 스킬(`configure-renesas-debug`)로 완벽하게 자동 생성합니다.
 
 ---
 
