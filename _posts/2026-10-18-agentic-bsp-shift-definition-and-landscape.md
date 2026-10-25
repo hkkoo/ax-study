@@ -83,7 +83,7 @@ BSP 업무는 다음과 같은 **물리적·환경적 조건**을 포함하므�
 | **Renesas** | R-Car, RZ 시리즈,<br/>e2 studio | • [renesas/renesas-skills](https://github.com/renesas/renesas-skills) | **L2 ~ L3** | `npx skills` 배포 체계, `.vscode/launch.json` 디버거 설정 자동화(`configure-renesas-debug`), RTOS 디버깅 |
 | **STMicroelectronics** | STM32MP1/MP2 (MPU),<br/>OpenSTLinux | • [STM32 Sidekick](https://www.st.com/content/st_com/en/about/ai-at-st/stm32-sidekick.html)<br/>• STM32CubeAI | **L1 ~ L2** | 방대한 데이터시트/레퍼런스 매뉴얼 기반 Grounded RAG AI Assistant, 엣지 AI 모델 배포 툴체인 |
 | **Rockchip** | RK3588/RK3568,<br/>Rockchip Linux BSP | • [rockchip-linux](https://github.com/rockchip-linux)<br/>• `rkbin`, `rkdeveloptool` | **L1 ~ L2** | 전통적 Git/tarball 및 독점 바이너리(`rkbin`) 중심. 소스 분석과 바이너리 출처 검증 분리 실험의 최적 플랫폼 |
-| **Android Kernel / AOSP** | Android GKI (6.1/6.6/6.12),<br/>AOSP Low-Level, Vendor Modules | • [jonaschen/Android-Software](https://github.com/jonaschen/Android-Software)<br/>• [tzussman/kernel-dev-skill](https://github.com/tzussman/kernel-dev-skill)<br/>• [gitcomit8/agent-skills](https://github.com/gitcomit8/agent-skills) | **L3 ~ L4** | GKI KMI ABI 심볼 검증(`L2-kernel-gki-expert`), 칩셋별 브링업(`L3-qualcomm-kernel`, `L3-mediatek-kernel`), 부트로더(LK), ATF 및 업스트림 커널 패치 워크플로 스킬 |
+| **Android Kernel / AOSP** | Android GKI (6.1/6.6/6.12),<br/>AOSP Low-Level, Vendor Modules | • [daliboss/Android-Software](https://github.com/daliboss/Android-Software)<br/>• [tzussman/kernel-dev-skill](https://github.com/tzussman/kernel-dev-skill)<br/>• [gitcomit8/agent-skills](https://github.com/gitcomit8/agent-skills) | **L3 ~ L4** | GKI KMI ABI 심볼 검증(`L2-kernel-gki-expert`), 칩셋별 브링업(`L3-qualcomm-kernel`, `L3-mediatek-kernel`), 부트로더(LK), ATF 및 업스트림 커널 패치 워크플로 스킬 |
 | **Arm / Linaro** | Cortex-A/M, Arm Virtual Hardware,<br/>LAVA Test Lab | • [ARM-software/AVH](https://github.com/ARM-software/AVH)<br/>• Linaro LAVA Lab Automation | **L4 ~ L5 (인프라)** | 실리콘 없는 가상 플랫폼(FVP) 기반 CI/CD 파이프라인, 보드 팜 원격 제어 및 테스트 자동화 표준 |
 
 ---
@@ -146,7 +146,7 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 
 | 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
 |---|---|---|---|---|
-| [`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software)<br/>*(AOSP 저수준 플랫폼)* | AOSP 저수준,<br/>GKI, LK, ATF, HAL | Markdown 계층 계약<br/>(L1/L2/L3 계층 라우팅) | **`Forbidden Actions` 필수화** (최소 5개),<br/>Path Scope 화이트리스트 | `skill_lint.py` 정적 검증,<br/>`references/` 마크다운 지식 |
+| [`daliboss/Android-Software`](https://github.com/daliboss/Android-Software)<br/>*(AOSP 저수준 플랫폼)* | AOSP 저수준,<br/>GKI, LK, ATF, HAL | Markdown 계층 계약<br/>(L1/L2/L3 계층 라우팅) | **`Forbidden Actions` 필수화** (최소 5개),<br/>Path Scope 화이트리스트 | `skill_lint.py` 정적 검증,<br/>`references/` 마크다운 지식 |
 | [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)<br/>*(원저장소: jonaschen)* | Android/Linux BSP<br/>RCA 진단 (v6.8) | **결정론적 Python Tools**<br/>(`skills/bsp_diagnostics/`) | 정규식 조기부팅 선별(LLM 우회),<br/>입출력 Pydantic 스키마 강제 | 539개 단위/통합 테스트,<br/>`skill_improvement.py` 자가 학습 |
 | [`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets)<br/>/ [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets) | SoC 하드웨어 지식,<br/>DVFS, 전원, 클록 트리 | Claude Code 스킬 +<br/>임베디드 그래프 DB (Kuzu) | 원시 레지스터 주소 검증기,<br/>중복 노드 방지 멱등성 보장 | **380+ 정량 회귀 테스트(Eval)**,<br/>`hardware-spec-extractor` (TRM/XML) |
 | [`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills) | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
@@ -164,8 +164,8 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 #### 1. "결정론적 추론 우선(Deterministic over Autonomy)" 원칙 ([`ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent))
 LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각이 발생합니다. [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)(원저장소: `jonaschen`)는 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, **실제 계산과 로그 추출은 100% 순수 파이썬 도구(`skills/bsp_diagnostics/`)**에 위임합니다. 특히 초기 부팅 로그(TF-A, LK, U-Boot)는 순수 정규식으로 선별하여 LLM 호출 자체를 건너뜁니다.
 
-#### 2. MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 ([`Android-Software`](https://github.com/jonaschen/Android-Software))
-5,000만 줄이 넘는 AOSP에서 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염됩니다. [`Android-Software`](https://github.com/jonaschen/Android-Software)는 CPU의 MMU(Memory Management Unit)처럼 동작하는 **3계층 구조**를 취합니다:
+#### 2. MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 ([`Android-Software`](https://github.com/daliboss/Android-Software))
+5,000만 줄이 넘는 AOSP에서 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염됩니다. [`Android-Software`](https://github.com/daliboss/Android-Software)는 CPU의 MMU(Memory Management Unit)처럼 동작하는 **3계층 구조**를 취합니다:
 * **L1 Router**: 사용자 질의를 분석하여 generic AOSP 서브시스템으로 분기
 * **L2 Subsystem Expert**: `hardware/interfaces/`, `system/sepolicy/` 등 허용된 디렉터리(`path_scope`) 내에서만 탐색
 * **L3 OEM/SoC Expert**: `vendor/<oem>/`, `device/<oem>/` 등 벤더 고유 디렉터리로의 오버라이드 및 이관 처리

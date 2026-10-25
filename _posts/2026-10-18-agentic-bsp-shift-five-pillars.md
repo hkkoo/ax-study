@@ -38,7 +38,7 @@ date: 2026-10-18 01:00:00 +0900
 하나의 거대한 시스템 프롬프트에 "너는 안드로이드 BSP 전문가야. 소스 보고 알아서 빌드하고 디버깅해서 고쳐줘"라고 지시하는 방식(Do-everything Agent)은 반드시 실패합니다. 컨텍스트가 오염되고 어떤 순서로 판단해야 할지 길을 잃기 때문입니다.
 
 ### 절차 중심의 단위 스킬화
-Qualcomm의 [`qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills), Android 저수준·커널 전문 스킬셋인 [`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software), Yocto의 [`yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills), Renesas의 [`renesas-skills`](https://github.com/renesas/renesas-skills)처럼, 각 엔지니어링 작업 단위를 작고 명확한 계약(Contract)을 가진 **Skill**로 모듈화해야 합니다.
+Qualcomm의 [`qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills), Android 저수준·커널 전문 스킬셋인 [`daliboss/Android-Software`](https://github.com/daliboss/Android-Software), Yocto의 [`yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills), Renesas의 [`renesas-skills`](https://github.com/renesas/renesas-skills)처럼, 각 엔지니어링 작업 단위를 작고 명확한 계약(Contract)을 가진 **Skill**로 모듈화해야 합니다.
 
 각 스킬은 다음 4가지 요소를 엄격히 정의합니다:
 1. **Input (입력)**: 에러 로그 위치, 대상 소스 파일, 타깃 프로필
@@ -49,7 +49,7 @@ Qualcomm의 [`qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-s
 | 추천 단위 스킬 | 주 담당 업무 | 참조 벤더 구현 및 비고 |
 |---|---|---|
 | `kernel-build` | 프로젝트 표준 빌드 wrapper/Kleaf 호출 | 독립 `make` 추측 방지 (NVIDIA/Qualcomm 패턴) |
-| `kernel-gki-expert` | GKI KMI 심볼 검증, 벤더 `.ko` 모듈 빌드, DTBO 검증 | [`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software) |
+| `kernel-gki-expert` | GKI KMI 심볼 검증, 벤더 `.ko` 모듈 빌드, DTBO 검증 | [`daliboss/Android-Software`](https://github.com/daliboss/Android-Software) |
 | `dts-binding-check` | `dtschema` 및 `dtc`를 통한 문법/바인딩 검사 | 빌드 전 조기 문법 오류 차단 |
 | `kernel-oops-triage` | 패닉 콜스택 파싱 및 호스트 `addr2line` 심볼 매핑 | Intel [`linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) 기반 심볼 역추적 |
 | `yocto-doc-router` | 프로젝트 릴리즈 버전에 맞는 공식 문서 라우팅 | [`yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills) (BitBake 문법 환각 방지) |

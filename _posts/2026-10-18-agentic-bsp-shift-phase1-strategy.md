@@ -75,7 +75,7 @@ Phase 1에서 가장 먼저 에이전트에게 완전히 일임해야 할 **3대
 ### ① Kleaf / AOSP / Yocto 빌드 오류 트리아지 & 자동 복구
 - **시작 조건**: 컴파일러 에러 로그 (gcc/clang error, linker undefined reference), GKI KMI 심볼 불일치(`vmlinux.symvers`), 또는 BitBake 태스크 실패
 - **자율 절차**:
-  1. 컴파일러/빌드 에러 로그에서 파일명, 라인 번호, 심볼명 파싱 (Android GKI 환경에서는 [`jonaschen/Android-Software`](https://github.com/jonaschen/Android-Software)의 `L2-kernel-gki-expert`를 통해 KMI allowlist 검증; Yocto 환경에서는 [`bitbake-debug`](https://github.com/Higangssh/yocto-agent-skills)를 통해 `do_compile`, `do_package_qa` 구간 추출)
+  1. 컴파일러/빌드 에러 로그에서 파일명, 라인 번호, 심볼명 파싱 (Android GKI 환경에서는 [`daliboss/Android-Software`](https://github.com/daliboss/Android-Software)의 `L2-kernel-gki-expert`를 통해 KMI allowlist 검증; Yocto 환경에서는 [`bitbake-debug`](https://github.com/Higangssh/yocto-agent-skills)를 통해 `do_compile`, `do_package_qa` 구간 추출)
   2. 릴리즈 버전에 맞는 공식 문서 라우팅 ([`yocto-doc-router`](https://github.com/Higangssh/yocto-agent-skills) 등을 활용하여 문법 환각 차단)
   3. 대상 소스 파일 및 관련 헤더 탐색 후 시그니처 변경, 매크로 정의 누락, 헤더 include 누락 수정
   4. 격리 환경에서 빌드 wrapper 재실행
