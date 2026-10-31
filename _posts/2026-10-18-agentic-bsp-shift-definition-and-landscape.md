@@ -306,8 +306,10 @@ flowchart TD
 
 ## 7. 앞으로 이어질 내용 (시리즈 목차)
 
-Android BSP의 Agentic 전환은 단순히 도구를 연결하는 것을 넘어, 하드웨어 지식과 안전 거버넌스를 아우르는 체계적인 엔지니어링 작업입니다. 이어지는 글들에서는 이 설계를 바탕으로 실전 환경을 단계별로 구축해 나갑니다:
+Android BSP의 Agentic 전환은 단순히 도구를 연결하는 것을 넘어, 하드웨어 지식과 안전 거버넌스를 아우르는 체계적인 엔지니어링 작업입니다. 본 시리즈 전체 목차는 다음과 같습니다:
 
+- **[제0편: 에이전트 오케스트레이션과 워크플로우 (Claude Workflow vs LangGraph)]({{ '/posts/agentic-bsp-shift-frameworks-and-orchestration/' | relative_url }})**: Anthropic의 워크플로우 철학, Claude Code의 SOP(.agents/workflows) 및 FastMCP 구조, LangGraph 상태 머신과 체크포인터, 그리고 ai-bsp-agent의 실제 피벗 사례
+- **[제1편: Android BSP의 Agentic Shift 정의와 생태계 흐름]({{ '/posts/agentic-bsp-shift-definition-and-landscape/' | relative_url }})** (현재 글): L1~L6 성숙도 모델, 글로벌 11개 실리콘 벤더 지형도, 12대 오픈소스 저장소 분석, 무환각 5계층 스킬 구조
 - **[제2편: AI-Native BSP 아키텍처의 5대 기둥]({{ '/posts/agentic-bsp-shift-five-pillars/' | relative_url }})**: Target Profile, Focused Skills, Observability, Deterministic Verifier, State Outside Conversation
 - **[제3편: 단계별 전환 전략 (Phase 1: L1에서 L3~L4로 도약하기)]({{ '/posts/agentic-bsp-shift-phase1-strategy/' | relative_url }})**: 호스트 빌드 & 정적 진단의 자율 폐루프 구축
 - **[제4편: Phase 2: L4에서 L5로 (Virtual DUT & 런타임 관측성)]({{ '/posts/agentic-bsp-shift-phase2-strategy/' | relative_url }})**: Cuttlefish/QEMU 가상 장치 부팅 및 Perfetto SQL 질의
