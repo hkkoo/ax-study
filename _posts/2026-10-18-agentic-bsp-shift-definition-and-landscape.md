@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Android BSP의 Agentic Shift (1) — 정의와 생태계 흐름"
-description: "Agentic Shift를 설명하는 분석 틀과 BSP의 물리적 제약, 글로벌 실리콘 벤더 지형도, 그리고 오픈소스 BSP Skill 10대 저장소 분석을 통한 스킬 구성 및 자동 생성(Skill Creator) 설계를 다룹니다."
+description: "Agentic Shift를 설명하는 분석 틀과 BSP의 물리적 제약, 글로벌 실리콘 벤더 지형도, 그리고 오픈소스 BSP Skill 12대 저장소 분석을 통한 스킬 구성 및 자동 생성(Skill Creator) 설계를 다룹니다."
 date: 2026-10-18 00:00:00 +0900
 ---
 
@@ -12,7 +12,7 @@ Android와 Linux Kernel, 실리콘 벤더(SoC)의 하드웨어를 함께 다루�
 시리즈의 첫 번째 글에서는 다음 내용을 종합적으로 정리합니다:
 1. **Agentic Shift를 설명하는 분석 틀(L1~L6)**과 임베디드 BSP 환경의 물리적 특수성
 2. **글로벌 실리콘 벤더(11개 사)의 에이전틱 준비 상황 및 3대 그룹 분류**
-3. **오픈소스 생태계에서 수집·분석한 10대 BSP Skill 저장소의 아키텍처 특징**
+3. **오픈소스 생태계에서 수집·분석한 12대 BSP Skill 저장소의 아키텍처 특징**
 4. **결정론적 무환각(Zero-Hallucination)을 보장하는 5계층 BSP Skill 표준 구조**
 5. **TRM 데이터시트와 로그로부터 스킬을 자동 합성하는 'Skill Creator' 파이프라인 설계**
 
@@ -138,11 +138,11 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 
 ---
 
-## 4. 우리가 분석한 오픈소스 BSP Skill 10대 저장소의 구조적 특징
+## 4. 우리가 분석한 오픈소스 BSP Skill 12대 저장소의 구조적 특징
 
 우리는 인터넷에 공개된 다양한 엔지니어링 에이전트 저장소를 로컬 환경에 직접 클론하고 심층 분석했습니다. 각 리포지토리가 취하고 있는 구조적 특징과 장단점을 비교하면 다음과 같습니다.
 
-### 4.1 10대 오픈소스 BSP Skill 비교 매트릭스
+### 4.1 12대 오픈소스 BSP Skill 비교 매트릭스
 
 | 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
 |---|---|---|---|---|
@@ -150,6 +150,8 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 | [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)<br/>*(원저장소: jonaschen)* | Android/Linux BSP<br/>RCA 진단 (v6.8) | **결정론적 Python Tools**<br/>(`skills/bsp_diagnostics/`) | 정규식 조기부팅 선별(LLM 우회),<br/>입출력 Pydantic 스키마 강제 | 539개 단위/통합 테스트,<br/>`skill_improvement.py` 자가 학습 |
 | [`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets)<br/>/ [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets) | SoC 하드웨어 지식,<br/>DVFS, 전원, 클록 트리 | Claude Code 스킬 +<br/>임베디드 그래프 DB (Kuzu) | 원시 레지스터 주소 검증기,<br/>중복 노드 방지 멱등성 보장 | **380+ 정량 회귀 테스트(Eval)**,<br/>`hardware-spec-extractor` (TRM/XML) |
 | [`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills) | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
+| [`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab)<br/>*(물리 보드 벤치 랩)* | ARM 임베디드 Linux,<br/>U-Boot, Kernel, TFTP/NFS | Claude Code 워크플로우 +<br/>**MCP 하드웨어 도구 브리지** | 물리 릴레이/SysRq 전원 제어,<br/>단계별 SOP 및 격리 Docker 빌드 | UART 콘솔 실시간 모니터링,<br/>`lab_boot_analyze`, `lab_bench_verify` |
+| [`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills)<br/>*(베어메탈 & 저수준 스킬)* | 베어메탈, MCU 페리페럴,<br/>SPI/I2C/UART/MMIO, 커널 | 27개 도메인 Markdown 스킬<br/>(100+ Agent Skills 모음) | 버스 스톨 9-클록 복구 가이드,<br/>W1C 비트 오염 방지 안전 규칙 | **TRM 데이터시트 체계적 독해 프로토콜**,<br/>레지스터 맵/비트필드 추출 체크리스트 |
 | [`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills) | Yocto Project,<br/>BitBake 빌드 트리아지 | 릴리즈 인지 라우팅 +<br/>참조 문서 점진적 노출 | 버전 간 문법 오염 원천 차단,<br/>`do_compile` 에러 구간 추출 | `evals/cases/` 프롬프트 벤치마크,<br/>QA 에러 및 오버라이드 가이드 |
 | [`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) | x86 Linux 커널<br/>Panic/Oops 분석 | Stack Trace 파서 +<br/>`decode_stacktrace.sh` | 디버그 심볼(`vmlinux`) 필수 요구,<br/>구조화된 RCA 템플릿 강제 | First Bad Frame 심볼 역추적,<br/>`evals/` 모의 크래시 검증 |
 | [`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill) | Linux 커널 업스트림<br/>워크플로 자동화 | 공식 CLI 도구 래퍼<br/>(`b4`, `virtme-ng`, `git-bisect`) | 가상화 마이크로VM 격리 실행,<br/>Git 워크트리 변경 격리 | Linux 커널 개발 워크플로 매핑,<br/>Mailing List 패치 검증 |
@@ -159,7 +161,7 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 
 ---
 
-### 4.2 10대 저장소에서 도출한 핵심 설계 특징
+### 4.2 12대 저장소에서 도출한 핵심 설계 특징
 
 #### 1. "결정론적 추론 우선(Deterministic over Autonomy)" 원칙 ([`ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent))
 LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각이 발생합니다. [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)(원저장소: `jonaschen`)는 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, **실제 계산과 로그 추출은 100% 순수 파이썬 도구(`skills/bsp_diagnostics/`)**에 위임합니다. 특히 초기 부팅 로그(TF-A, LK, U-Boot)는 순수 정규식으로 선별하여 LLM 호출 자체를 건너뜁니다.
@@ -197,11 +199,24 @@ NVIDIA는 에이전트 스킬을 실무 파이프라인에 투입하기 위해 *
 #### 10. 임베디드 디버거 프로브 및 IDE 런치 구성 자동화 ([`renesas/renesas-skills`](https://github.com/renesas/renesas-skills))
 J-Link, E2/E2Lite 등 벤더 고유의 하드웨어 JTAG/SWD 디버거 프로브와 GDB 서버, RTOS 스레드 인지 디버깅을 위한 VS Code `.vscode/launch.json` 설정을 에이전트가 단일 스킬(`configure-renesas-debug`)로 완벽하게 자동 생성합니다.
 
+#### 11. MCP 기반 물리 하드웨어 도구 브리지와 단계별 SOP ([`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab))
+Claude Code, Devin 등 최신 코딩 에이전트가 실제 물리 하드웨어 타깃(STM32MP1 등 ARM MPU 보드)을 다룰 때 겪는 가장 큰 장벽은 **"물리 장치에 접근할 제어 통로 부재"**입니다. [`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab)은 Anthropic의 **Model Context Protocol (MCP)** 서버(`tools/mcp/server.py`)를 구축하여 이 문제를 완벽히 해결했습니다:
+* **하드웨어 도구 브리지(Hardware Tool Bridge)**: 에이전트에게 `lab_serial_log`, `lab_serial_wait`, `lab_serial_send`를 제공하여 UART 시리얼 콘솔을 실시간으로 감시·제어하게 하고, 부팅 패닉 시 `lab_boot_analyze`로 부팅 단계와 에러를 정밀 진단하며, 스마트 플러그 전원 릴레이나 SysRq를 통한 `lab_reboot`를 지원합니다.
+* **계층형 검증(Tiered Verification)**: 호스트 측 Docker 빌드 검증(Tier 1)과 물리 보드 시리얼 부팅 검증(Tier 2 `lab_bench_verify`)으로 분리하여 파괴적 변경이 실물 보드에 도달하기 전 단계별 검증 관문을 둡니다.
+* **표준 SOP 워크플로우(Standard Operating Procedures)**: `.agents/workflows/`(`docker_setup.md`, `mcp_setup.md`, `new_board.md`, `uboot_sd_deploy.md`)를 통해 신규 보드 온보딩과 부트로더 배포의 정형화된 절차를 에이전트가 한 단계씩 차례대로 밟아가도록 강제합니다.
+
+#### 12. TRM 데이터시트 체계적 독해 및 베어메탈 페리페럴 스킬 ([`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills))
+베어메탈 펌웨어와 저수준 드라이버 개발에서 가장 흔한 LLM의 실패 원인은 데이터시트의 레지스터 비트필드와 하드웨어 시퀀스를 부정확하게 추정하는 것입니다. [`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills)는 베어메탈, MCU 페리페럴, 커널, QEMU, eBPF, 어셈블리 등 27개 하위 도메인에 걸쳐 100개 이상의 정교한 저수준 에이전트 스킬을 제공합니다:
+* **TRM 데이터시트 체계적 독해 프로토콜 ([`datasheet-and-refmanual-reading`](https://github.com/mohitmishra786/low-level-dev-skills/blob/main/skills/baremetal/datasheet-and-refmanual-reading/SKILL.md))**: 에이전트가 2,000페이지가 넘는 Reference Manual을 탐색할 때 무작위 검색을 하지 않고 `메모리 맵 → 리셋/클록 제어(RCC/CGU) → GPIO 핀 다중화(AF) → 대상 페리페럴 장 → NVIC 인터럽트 맵 → Errata` 순으로 읽도록 표준 탐색 순서를 규정합니다.
+* **레지스터 추출 체크리스트**: 각 레지스터마다 베이스 주소 오프셋, 리셋 기본값, Read-Only/Write-1-to-Clear(W1C) 속성, 모드 의존적 비트 및 부수효과(Side-effects)를 추출하는 엄격한 기준을 제시하여 LLM의 환각을 차단합니다.
+* **베어메탈 버스 프로토콜 안전망 ([`spi-i2c-baremetal`](https://github.com/mohitmishra786/low-level-dev-skills/blob/main/skills/baremetal/spi-i2c-baremetal/SKILL.md))**: SPI의 CPOL/CPHA 모드 전환 타이밍, I2C의 START/STOP/ACK 시퀀스 및 슬레이브가 SDA를 잡아당겨 버스가 멈추는 'Bus Stall' 상황에서 SCL에 9개 클록 펄스를 인가해 복구하는 실전 하드웨어 복구 프로토콜을 스킬화했습니다.
+* **Skill Creator의 규격서 파싱 표준**: 이 프로토콜은 우리가 설계한 **Skill Creator 파이프라인의 1단계(Ingestion & Feature Extraction)**에서 TRM 문서로부터 레지스터 사양과 안전 계약을 자동 추출할 때 LLM이 준수해야 할 가장 강력한 도메인 지침으로 활용됩니다.
+
 ---
 
 ## 5. 우리가 정의하는 실전 BSP Skill 5대 표준 구성 체계 (The 5-Part Skill Anatomy)
 
-위 10대 저장소의 장점(Android-Software의 계층 라우팅 + ai-bsp-agent의 결정론적 파이썬 도구 + ai-bsp-knowledge의 하드웨어 지식 그래프 + Qualcomm의 비파괴 검증)을 결합하여, **프로덕션 환경을 위한 BSP Skill 표준 구조**를 확립합니다:
+위 12대 저장소의 장점(Android-Software의 계층 라우팅 + ai-bsp-agent의 결정론적 파이썬 도구 + arm-embedded-linux-lab의 MCP 하드웨어 도구 브리지 + low-level-dev-skills의 규격서 독해 및 베어메탈 제어 패턴 + ai-bsp-knowledge의 하드웨어 지식 그래프 + Qualcomm의 비파괴 검증)을 결합하여, **프로덕션 환경을 위한 BSP Skill 표준 구조**를 확립합니다:
 
 ```text
 skills/<subsystem>/<skill-name>/
@@ -265,7 +280,7 @@ flowchart TD
 ### 6.2 5단계 합성 파이프라인 세부 동작
 
 1. **Stage 1: Ingestion & Feature Extraction (특징 추출)**
-   * `hardware-spec-extractor`를 활용하여 PDF/XML에서 레지스터 이름, 오프셋, 비트필드(RW/RO), 리셋 값을 추출합니다.
+   * `hardware-spec-extractor`와 [`datasheet-and-refmanual-reading`](https://github.com/mohitmishra786/low-level-dev-skills/blob/main/skills/baremetal/datasheet-and-refmanual-reading/SKILL.md) 프로토콜을 결합하여, Reference Manual의 체계적 독해 순서(메모리 맵 → 클록 트리 → GPIO 다중화 → 페리페럴 레지스터)에 따라 PDF/XML에서 레지스터 이름, 오프셋, 비트필드(RW/RO/W1C), 리셋 값을 정밀 추출합니다.
    * `ingest_postmortem.py`와 `kernel_oops` 파서를 적용하여 패닉 로그의 콜스택 시그니처와 원인 컴포넌트를 분리합니다.
    * 전원 레일(PMIC), eFuse, GKI ABI 심볼 등 위험 영역을 기계적으로 태깅합니다.
 
