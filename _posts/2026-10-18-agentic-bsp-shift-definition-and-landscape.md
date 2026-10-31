@@ -140,77 +140,82 @@ PDF 매뉴얼 검색 ──▶ 브랜치 확인 ──▶ DTS 노드 추적 ─�
 
 ## 4. 우리가 분석한 오픈소스 BSP Skill 12대 저장소의 구조적 특징
 
-우리는 인터넷에 공개된 다양한 엔지니어링 에이전트 저장소를 로컬 환경에 직접 클론하고 심층 분석했습니다. 각 리포지토리가 취하고 있는 구조적 특징과 장단점을 비교하면 다음과 같습니다.
+우리는 인터넷에 공개된 다양한 엔지니어링 에이전트 저장소를 로컬 환경에 직접 클론하고 심층 분석했습니다. 12개 저장소 전체를 하나의 거대한 표에 담으면 정보의 밀도가 너무 높아 복잡해지므로, 먼저 **모든 저장소를 관통하는 3대 공통 설계 원칙**을 정리한 후, **① Android Platform**, **② Low-Level & Kernel**, **③ Silicon Vendor & Ecosystem**의 3대 도메인별 분류 테이블과 세부 아키텍처 분석을 차례로 살펴봅니다.
 
-### 4.1 12대 오픈소스 BSP Skill 비교 매트릭스
+---
+
+### 4.1 12대 저장소를 관통하는 3대 공통 설계 원칙 (Common Foundational Principles)
+
+모든 저장소는 다루는 세부 계층은 다르지만, 하드웨어 시스템의 물리적 제약과 LLM의 본질적 한계를 극복하기 위해 다음 3가지 핵심 원칙을 공통적으로 채택하고 있습니다:
+
+1. **"결정론적 추론 우선(Deterministic over Autonomy)" 원칙**:
+   * LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각(Hallucination)이 발생합니다.
+   * 선도 저장소들은 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, 실제 계산과 로그 추출·정규식 필터링은 순수 파이썬 도구(`tools/`) 또는 C CLI에 100% 위임합니다.
+2. **파괴적 작업과 사후 검증의 엄격한 분리 (Safety & Non-destructive Defaults)**:
+   * 보드를 다루는 스킬은 소스 코드 수정, 플래싱(Flash), eFuse 쓰기 같은 '변이(Mutation)' 작업과, 시리얼 콘솔을 열어 정상 부팅 여부를 판정하는 '검증(Verification)' 작업을 한 번에 섞어 실행하지 않습니다.
+   * 검증 스킬은 모호한 자연어가 아닌 `exit 0` 종료 코드와 정규화된 펜스 태그(`BOOT-VALIDATION: PASS / FAIL`)를 명확히 반환합니다.
+3. **점진적 노출(Progressive Disclosure)과 계약 강제 (Contract & Context Guard)**:
+   * 3계층 점진적 노출(Level 1 메타데이터 ~100단어 → Level 2 본문 SKILL.md → Level 3 번들 리소스)을 적용하여 컨텍스트 윈도우의 토큰 낭비를 원천 차단합니다.
+   * `Forbidden Actions` 최소 5개 지정 및 엄격한 `path_scope` 화이트리스트를 통해 에이전트가 허용되지 않은 디렉터리를 침범하거나 위험한 시스템 명령을 실행하지 못하도록 계약(Contract)을 강제합니다.
+
+---
+
+### 4.2 도메인별 3대 분류 비교 매트릭스 및 세부 아키텍처
+
+#### 분류 1: Android Platform & AOSP 저수준 스킬 (3대 저장소)
+
+Android 플랫폼은 5,000만 줄이 넘는 거대한 코드베이스와 HAL, GKI, ATF, U-Boot 등 복잡한 소프트웨어 스택을 가집니다.
 
 | 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
 |---|---|---|---|---|
 | [`daliboss/Android-Software`](https://github.com/daliboss/Android-Software)<br/>*(AOSP 저수준 플랫폼)* | AOSP 저수준,<br/>GKI, LK, ATF, HAL | Markdown 계층 계약<br/>(L1/L2/L3 계층 라우팅) | **`Forbidden Actions` 필수화** (최소 5개),<br/>Path Scope 화이트리스트 | `skill_lint.py` 정적 검증,<br/>`references/` 마크다운 지식 |
 | [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)<br/>*(원저장소: jonaschen)* | Android/Linux BSP<br/>RCA 진단 (v6.8) | **결정론적 Python Tools**<br/>(`skills/bsp_diagnostics/`) | 정규식 조기부팅 선별(LLM 우회),<br/>입출력 Pydantic 스키마 강제 | 539개 단위/통합 테스트,<br/>`skill_improvement.py` 자가 학습 |
 | [`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets)<br/>/ [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets) | SoC 하드웨어 지식,<br/>DVFS, 전원, 클록 트리 | Claude Code 스킬 +<br/>임베디드 그래프 DB (Kuzu) | 원시 레지스터 주소 검증기,<br/>중복 노드 방지 멱등성 보장 | **380+ 정량 회귀 테스트(Eval)**,<br/>`hardware-spec-extractor` (TRM/XML) |
-| [`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills) | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
-| [`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab)<br/>*(물리 보드 벤치 랩)* | ARM 임베디드 Linux,<br/>U-Boot, Kernel, TFTP/NFS | Claude Code 워크플로우 +<br/>**MCP 하드웨어 도구 브리지** | 물리 릴레이/SysRq 전원 제어,<br/>단계별 SOP 및 격리 Docker 빌드 | UART 콘솔 실시간 모니터링,<br/>`lab_boot_analyze`, `lab_bench_verify` |
-| [`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills)<br/>*(베어메탈 & 저수준 스킬)* | 베어메탈, MCU 페리페럴,<br/>SPI/I2C/UART/MMIO, 커널 | 27개 도메인 Markdown 스킬<br/>(100+ Agent Skills 모음) | 버스 스톨 9-클록 복구 가이드,<br/>W1C 비트 오염 방지 안전 규칙 | **TRM 데이터시트 체계적 독해 프로토콜**,<br/>레지스터 맵/비트필드 추출 체크리스트 |
-| [`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills) | Yocto Project,<br/>BitBake 빌드 트리아지 | 릴리즈 인지 라우팅 +<br/>참조 문서 점진적 노출 | 버전 간 문법 오염 원천 차단,<br/>`do_compile` 에러 구간 추출 | `evals/cases/` 프롬프트 벤치마크,<br/>QA 에러 및 오버라이드 가이드 |
-| [`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) | x86 Linux 커널<br/>Panic/Oops 분석 | Stack Trace 파서 +<br/>`decode_stacktrace.sh` | 디버그 심볼(`vmlinux`) 필수 요구,<br/>구조화된 RCA 템플릿 강제 | First Bad Frame 심볼 역추적,<br/>`evals/` 모의 크래시 검증 |
-| [`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill) | Linux 커널 업스트림<br/>워크플로 자동화 | 공식 CLI 도구 래퍼<br/>(`b4`, `virtme-ng`, `git-bisect`) | 가상화 마이크로VM 격리 실행,<br/>Git 워크트리 변경 격리 | Linux 커널 개발 워크플로 매핑,<br/>Mailing List 패치 검증 |
-| [`gitcomit8/agent-skills`](https://github.com/gitcomit8/agent-skills)<br/>*(내부 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) 포함)* | Linux 드라이버 개발,<br/>ftrace, kprobes | 태스크 단위 Markdown 스킬<br/>(드라이버 보일러플레이트) | 단계별 커널 체크패치(`checkpatch.pl`),<br/>코딩 컨벤션 검사 | I2C/SPI 드라이버 참조 코드,<br/>커널 디버깅 헬퍼 가이드 |
-| [`NVIDIA/skills`](https://github.com/NVIDIA/skills) | Jetson / Robotics<br/>엔터프라이즈 스킬 | Agent Skills Spec 준수<br/>(Skill Cards + 서명) | **SkillSpector 보안 스캔**, 암호 서명,<br/>Capability Governance 정책 | `evaluating-agent-skills.mdx`,<br/>Skill Card 표준 메타데이터 |
-| [`renesas/renesas-skills`](https://github.com/renesas/renesas-skills) | Renesas R-Car / MPU<br/>VS Code IDE 연동 | `npx skills` 배포 패키지 +<br/>`launch.json` 설정기 | 하드웨어 디버거(J-Link/E2) 파라미터 유효성,<br/>GDB 명령 검증 | 벤더 하드웨어 디버거 매핑,<br/>RTOS 스레드 인지 디버깅 설정 |
+
+##### [Android 세부 아키텍처 특징]
+* **MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 ([`Android-Software`](https://github.com/daliboss/Android-Software))**: 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염되므로, CPU MMU처럼 동작하는 3계층 구조(L1 Router → L2 Subsystem Expert → L3 OEM/SoC Expert)를 통해 `path_scope`로 지정된 디렉터리만 탐색하도록 강제합니다.
+* **조기 부팅 로그 정규식 선별 및 결정론적 파서 ([`ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent))**: 초기 부팅 단계(TF-A, LK, U-Boot) 로그는 LLM을 호출하지 않고 순수 정규식으로 선별하며, STD 최면 복구 실패 등 복잡한 장애는 Pydantic 스키마를 갖춘 순수 파이썬 도구(`skills/bsp_diagnostics/`)에 위임하여 처리합니다.
+* **하드웨어 지식의 구조화 및 규격서 자동 추출 ([`ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets))**: 단순 텍스트 임베딩 대신 **Kuzu 임베디드 그래프 DB**를 활용하여 레지스터, 클록 소스, 파워 도메인의 물리적 의존성을 모델링하며, **`hardware-spec-extractor`**를 통해 IP-XACT XML 및 PDF TRM에서 레지스터 맵을 자동 추출합니다.
 
 ---
 
-### 4.2 12대 저장소에서 도출한 핵심 설계 특징
+#### 분류 2: Low-Level, Kernel & Hardware Bench 스킬 (5대 저장소)
 
-#### 1. "결정론적 추론 우선(Deterministic over Autonomy)" 원칙 ([`ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent))
-LLM에게 16진수 레지스터 주소 계산, 비트마스크 시프트, 수만 줄의 dmesg 정규식 파싱을 맡기면 반드시 환각이 발생합니다. [`liangyongqin/ai-bsp-agent`](https://github.com/liangyongqin/ai-bsp-agent)(원저장소: `jonaschen`)는 LLM(Brain)에게 오직 고수준 가설 수립과 도구 디스패치만 맡기고, **실제 계산과 로그 추출은 100% 순수 파이썬 도구(`skills/bsp_diagnostics/`)**에 위임합니다. 특히 초기 부팅 로그(TF-A, LK, U-Boot)는 순수 정규식으로 선별하여 LLM 호출 자체를 건너뜁니다.
+베어메탈 펌웨어, Linux 커널 드라이버, 실물 보드 벤치 제어 등 하드웨어 물리 경계면과 직접 맞닿아 있는 영역입니다.
 
-#### 2. MMU 스타일의 계층적 라우팅과 엄격한 경로 제약 ([`Android-Software`](https://github.com/daliboss/Android-Software))
-5,000만 줄이 넘는 AOSP에서 전체 트리를 에이전트에게 한 번에 노출하면 문맥이 오염됩니다. [`Android-Software`](https://github.com/daliboss/Android-Software)는 CPU의 MMU(Memory Management Unit)처럼 동작하는 **3계층 구조**를 취합니다:
-* **L1 Router**: 사용자 질의를 분석하여 generic AOSP 서브시스템으로 분기
-* **L2 Subsystem Expert**: `hardware/interfaces/`, `system/sepolicy/` 등 허용된 디렉터리(`path_scope`) 내에서만 탐색
-* **L3 OEM/SoC Expert**: `vendor/<oem>/`, `device/<oem>/` 등 벤더 고유 디렉터리로의 오버라이드 및 이관 처리
+| 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
+|---|---|---|---|---|
+| [`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab)<br/>*(물리 보드 벤치 랩)* | ARM 임베디드 Linux,<br/>U-Boot, Kernel, TFTP/NFS | Claude Code 워크플로우 +<br/>**MCP 하드웨어 도구 브리지** | 물리 릴레이/SysRq 전원 제어,<br/>단계별 SOP 및 격리 Docker 빌드 | UART 콘솔 실시간 모니터링,<br/>`lab_boot_analyze`, `lab_bench_verify` |
+| [`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills)<br/>*(베어메탈 & 저수준 스킬)* | 베어메탈, MCU 페리페럴,<br/>SPI/I2C/UART/MMIO, 커널 | 27개 도메인 Markdown 스킬<br/>(100+ Agent Skills 모음) | 버스 스톨 9-클록 복구 가이드,<br/>W1C 비트 오염 방지 안전 규칙 | **TRM 데이터시트 체계적 독해 프로토콜**,<br/>레지스터 맵/비트필드 추출 체크리스트 |
+| [`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops) | x86 Linux 커널<br/>Panic/Oops 분석 | Stack Trace 파서 +<br/>`decode_stacktrace.sh` | 디버그 심볼(`vmlinux`) 필수 요구,<br/>구조화된 RCA 템플릿 강제 | First Bad Frame 심볼 역추적,<br/>`evals/` 모의 크래시 검증 |
+| [`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill) | Linux 커널 업스트림<br/>워크플로 자동화 | 공식 CLI 도구 래퍼<br/>(`b4`, `virtme-ng`, `git-bisect`) | 가상화 마이크로VM 격리 실행,<br/>Git 워크트리 변경 격리 | Linux 커널 개발 워크플로 매핑,<br/>Mailing List 패치 검증 |
+| [`gitcomit8/agent-skills`](https://github.com/gitcomit8/agent-skills)<br/>*(내부 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) 포함)* | Linux 드라이버 개발,<br/>ftrace, kprobes | 태스크 단위 Markdown 스킬<br/>(드라이버 보일러플레이트) | 단계별 커널 체크패치(`checkpatch.pl`),<br/>코딩 컨벤션 검사 | I2C/SPI 드라이버 참조 코드,<br/>커널 디버깅 헬퍼 가이드 |
 
-#### 3. 하드웨어 지식의 구조화 및 규격서 자동 추출 ([`ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets))
-단순 텍스트 매뉴얼을 벡터 DB에 임베딩하는 방식은 레지스터 비트 필드나 전원 시퀀싱 같은 정밀 하드웨어 관계를 보장하지 못합니다. 이 프로젝트([`liangyongqin/ai-bsp-knowledge-skill-sets`](https://github.com/liangyongqin/ai-bsp-knowledge-skill-sets) / [`NasdaqGodzilla`](https://github.com/NasdaqGodzilla/ai-bsp-knowledge-skill-sets))는 **Kuzu 임베디드 그래프 DB**를 활용하여 레지스터, 클록 소스, 파워 도메인의 물리적 의존성을 모델링하며, **`hardware-spec-extractor`**를 통해 IP-XACT 2022 XML 및 PDF TRM에서 레지스터 맵을 자동 추출합니다.
+##### [Low-Level & Kernel 세부 아키텍처 특징]
+* **MCP 기반 물리 하드웨어 도구 브리지와 단계별 SOP ([`arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab))**: Claude Code가 Anthropic 표준 **Model Context Protocol (MCP)** 서버(`tools/mcp/server.py`)를 통해 물리 UART 시리얼 콘솔 감시(`lab_serial_log/wait`), 스마트 플러그 전원 릴레이 리셋(`lab_reboot`), 패닉 진단(`lab_boot_analyze`)을 직접 호출하며, `.agents/workflows/`의 SOP 마크다운 절차에 따라 신규 보드 온보딩과 부트로더 배포를 한 단계씩 안전하게 수행합니다.
+* **TRM 데이터시트 체계적 독해 및 베어메탈 버스 프로토콜 안전망 ([`low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills))**: 2,000페이지 Reference Manual을 `메모리 맵 → 클록 트리 → GPIO 다중화 → 페리페럴 → NVIC → Errata` 순으로 읽는 정형화된 독해 프로토콜과 레지스터 추출 체크리스트(오프셋, 리셋값, W1C)를 제공합니다. 또한 I2C 버스 스톨 시 SCL에 9개 클록 펄스를 인가해 하드웨어를 깨우는 실전 복구 프로토콜을 구현했습니다.
+* **Oops 스택 트레이스 파싱과 디버그 심볼 역추적 ([`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops))**: 커널 패닉 발생 시 원시 로그를 그대로 모델에 전달하지 않고, 스택 트레이스를 정규화하여 파싱한 뒤 `decode_stacktrace.sh`를 통해 `vmlinux` 디버그 심볼과 대조하여 First Bad Frame의 C 소스 파일명과 정확한 라인 번호를 도출합니다.
+* **업스트림 커널 메일링리스트 및 마이크로VM 부팅 자동화 ([`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill))**: `b4` CLI를 통한 lore.kernel.org 패치 수신/적용, `virtme-ng`를 통한 컴파일 커널의 1초 마이크로VM 즉시 부팅 테스트, `git bisect`를 활용한 회귀 커밋 자동 탐색 등 업스트림 커널 개발 워크플로를 온전히 스킬화했습니다.
+* **드라이버 개발 보일러플레이트와 스킬 생성 표준 ([`gitcomit8/agent-skills`](https://github.com/gitcomit8/agent-skills))**: I2C/SPI 드라이버 및 ftrace/kprobe 디버깅 템플릿과 함께, Anthropic의 공식 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator)를 내장하여 점진적 노출 스킬의 작성 표준을 제공합니다.
 
-#### 4. 파괴적 작업과 사후 검증의 엄격한 분리 ([`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills))
-보드를 다루는 스킬은 절대 '수정과 검증'을 한 번에 섞어 실행하지 않습니다. 플래싱을 수행하는 변이 스킬(`qcom-flash-qdl`)과 시리얼 콘솔을 열어 정상 부팅 여부를 판정하는 검증 스킬(`qcom-boot-validate`)이 명확히 분리되어 있으며, 검증 스킬은 모호한 자연어가 아닌 `exit 0` 종료 코드와 `BOOT-VALIDATION: PASS / FAIL` 펜스 태그를 반환합니다.
+---
 
-#### 5. 점진적 노출(Progressive Disclosure)과 스킬 린트 ([`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) & `skill_lint.py`)
-Anthropic의 공식 [`skill-creator`](https://github.com/gitcomit8/agent-skills/tree/main/skill-creator) 표준과 `Android-Software`의 `skill_lint.py`는 스킬 파일의 토큰 낭비를 원천 차단합니다:
-* **Level 1 (Metadata)**: 프런트매터(`name`, `description`)만 상시 컨텍스트에 유지 (~100 단어)
-* **Level 2 (SKILL.md 본문)**: 스킬이 트리거되었을 때만 로드 (<500 라인)
-* **Level 3 (번들 리소스)**: `references/`, `scripts/`는 필요할 때만 선별 호출
+#### 분류 3: 주요 실리콘 벤더(Vendor) & 생태계 거버넌스 스킬 (4대 저장소)
 
-#### 6. Oops 스택 트레이스 파싱과 디버그 심볼 역추적 ([`intel/linux-kernel-oops`](https://github.com/intel/linux-kernel-oops))
-커널 패닉 발생 시 원시 텍스트 로그를 그대로 LLM에 던지는 대신, 스택 트레이스를 정규화하여 파싱하고 `decode_stacktrace.sh`를 통해 `vmlinux`의 디버그 심볼과 대조합니다. 크래시를 유발한 First Bad Frame의 C 소스 파일명과 정확한 라인 번호를 도출하여 진단 시간을 획기적으로 단축합니다.
+글로벌 실리콘 벤더(Qualcomm, NVIDIA, Renesas)와 임베디드 Linux 필수 빌드 시스템(Yocto)의 엔터프라이즈 환경입니다.
 
-#### 7. Yocto 릴리즈 인지 라우팅과 BitBake 태스크 트리아지 ([`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills))
-Yocto의 릴리즈별(Dunfell, Kirkstone, Scarthgap 등) 문법 변경(`_append` vs `:append`)으로 인한 에이전트의 문법 환각을 방지하기 위해 `yocto-doc-router`가 해당 릴리즈의 공식 문서만 선별 공급합니다. 또한 수만 줄의 BitBake 로그 중 `do_compile`, `do_package_qa` 구간만 정규화하여 추출합니다.
+| 저장소명 | 핵심 도메인 | 스킬 구현 방식 | 안전/거버넌스 장치 | 지식 표현 및 평가(Eval) 체계 |
+|---|---|---|---|---|
+| [`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills) | Snapdragon Linux,<br/>QDL 플래시, 부팅 검증 | 단위 Python CLI 스크립트<br/>(`pyserial` UART 자동화) | 비파괴 기본 원칙, 종료 코드(`exit 0`),<br/>Fenced Sanity Checks | `references/` 보드 메타데이터,<br/>LAVA CI 연동 리포트 |
+| [`NVIDIA/skills`](https://github.com/NVIDIA/skills) | Jetson / Robotics<br/>엔터프라이즈 스킬 | Agent Skills Spec 준수<br/>(Skill Cards + 서명) | **SkillSpector 보안 스캔**, 암호 서명,<br/>Capability Governance 정책 | `evaluating-agent-skills.mdx`,<br/>Skill Card 표준 메타데이터 |
+| [`renesas/renesas-skills`](https://github.com/renesas/renesas-skills) | Renesas R-Car / MPU<br/>VS Code IDE 연동 | `npx skills` 배포 패키지 +<br/>`launch.json` 설정기 | 하드웨어 디버거(J-Link/E2) 파라미터 유효성,<br/>GDB 명령 검증 | 벤더 하드웨어 디버거 매핑,<br/>RTOS 스레드 인지 디버깅 설정 |
+| [`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills) | Yocto Project,<br/>BitBake 빌드 트리아지 | 릴리즈 인지 라우팅 +<br/>참조 문서 점진적 노출 | 버전 간 문법 오염 원천 차단,<br/>`do_compile` 에러 구간 추출 | `evals/cases/` 프롬프트 벤치마크,<br/>QA 에러 및 오버라이드 가이드 |
 
-#### 8. 업스트림 커널 메일링리스트 및 마이크로VM 자동화 ([`tzussman/kernel-dev-skill`](https://github.com/tzussman/kernel-dev-skill))
-`b4` CLI를 통한 lore.kernel.org 패치 수신 및 적용, `virtme-ng`를 통한 컴파일 커널의 1초 마이크로VM 즉시 부팅 테스트, `git bisect`를 활용한 회귀 커밋 자동 탐색 등 업스트림 커널 개발 워크플로를 온전히 스킬화했습니다.
-
-#### 9. 엔터프라이즈 스킬 보안 스캔과 디지털 서명 거버넌스 ([`NVIDIA/skills`](https://github.com/NVIDIA/skills))
-NVIDIA는 에이전트 스킬을 실무 파이프라인에 투입하기 위해 **Capability Governance** 체계를 구축했습니다. 스킬 카드(Skill Card)에 책임자, 사용 목적, 위험 및 완화책을 명시하고, `SkillSpector` 정적 분석기와 `.oms.sig` 암호 서명을 통해 검증된 스킬만 실행되도록 통제합니다.
-
-#### 10. 임베디드 디버거 프로브 및 IDE 런치 구성 자동화 ([`renesas/renesas-skills`](https://github.com/renesas/renesas-skills))
-J-Link, E2/E2Lite 등 벤더 고유의 하드웨어 JTAG/SWD 디버거 프로브와 GDB 서버, RTOS 스레드 인지 디버깅을 위한 VS Code `.vscode/launch.json` 설정을 에이전트가 단일 스킬(`configure-renesas-debug`)로 완벽하게 자동 생성합니다.
-
-#### 11. MCP 기반 물리 하드웨어 도구 브리지와 단계별 SOP ([`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab))
-Claude Code, Devin 등 최신 코딩 에이전트가 실제 물리 하드웨어 타깃(STM32MP1 등 ARM MPU 보드)을 다룰 때 겪는 가장 큰 장벽은 **"물리 장치에 접근할 제어 통로 부재"**입니다. [`solitontech/arm-embedded-linux-lab`](https://github.com/solitontech/arm-embedded-linux-lab)은 Anthropic의 **Model Context Protocol (MCP)** 서버(`tools/mcp/server.py`)를 구축하여 이 문제를 완벽히 해결했습니다:
-* **하드웨어 도구 브리지(Hardware Tool Bridge)**: 에이전트에게 `lab_serial_log`, `lab_serial_wait`, `lab_serial_send`를 제공하여 UART 시리얼 콘솔을 실시간으로 감시·제어하게 하고, 부팅 패닉 시 `lab_boot_analyze`로 부팅 단계와 에러를 정밀 진단하며, 스마트 플러그 전원 릴레이나 SysRq를 통한 `lab_reboot`를 지원합니다.
-* **계층형 검증(Tiered Verification)**: 호스트 측 Docker 빌드 검증(Tier 1)과 물리 보드 시리얼 부팅 검증(Tier 2 `lab_bench_verify`)으로 분리하여 파괴적 변경이 실물 보드에 도달하기 전 단계별 검증 관문을 둡니다.
-* **표준 SOP 워크플로우(Standard Operating Procedures)**: `.agents/workflows/`(`docker_setup.md`, `mcp_setup.md`, `new_board.md`, `uboot_sd_deploy.md`)를 통해 신규 보드 온보딩과 부트로더 배포의 정형화된 절차를 에이전트가 한 단계씩 차례대로 밟아가도록 강제합니다.
-
-#### 12. TRM 데이터시트 체계적 독해 및 베어메탈 페리페럴 스킬 ([`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills))
-베어메탈 펌웨어와 저수준 드라이버 개발에서 가장 흔한 LLM의 실패 원인은 데이터시트의 레지스터 비트필드와 하드웨어 시퀀스를 부정확하게 추정하는 것입니다. [`mohitmishra786/low-level-dev-skills`](https://github.com/mohitmishra786/low-level-dev-skills)는 베어메탈, MCU 페리페럴, 커널, QEMU, eBPF, 어셈블리 등 27개 하위 도메인에 걸쳐 100개 이상의 정교한 저수준 에이전트 스킬을 제공합니다:
-* **TRM 데이터시트 체계적 독해 프로토콜 ([`datasheet-and-refmanual-reading`](https://github.com/mohitmishra786/low-level-dev-skills/blob/main/skills/baremetal/datasheet-and-refmanual-reading/SKILL.md))**: 에이전트가 2,000페이지가 넘는 Reference Manual을 탐색할 때 무작위 검색을 하지 않고 `메모리 맵 → 리셋/클록 제어(RCC/CGU) → GPIO 핀 다중화(AF) → 대상 페리페럴 장 → NVIC 인터럽트 맵 → Errata` 순으로 읽도록 표준 탐색 순서를 규정합니다.
-* **레지스터 추출 체크리스트**: 각 레지스터마다 베이스 주소 오프셋, 리셋 기본값, Read-Only/Write-1-to-Clear(W1C) 속성, 모드 의존적 비트 및 부수효과(Side-effects)를 추출하는 엄격한 기준을 제시하여 LLM의 환각을 차단합니다.
-* **베어메탈 버스 프로토콜 안전망 ([`spi-i2c-baremetal`](https://github.com/mohitmishra786/low-level-dev-skills/blob/main/skills/baremetal/spi-i2c-baremetal/SKILL.md))**: SPI의 CPOL/CPHA 모드 전환 타이밍, I2C의 START/STOP/ACK 시퀀스 및 슬레이브가 SDA를 잡아당겨 버스가 멈추는 'Bus Stall' 상황에서 SCL에 9개 클록 펄스를 인가해 복구하는 실전 하드웨어 복구 프로토콜을 스킬화했습니다.
-* **Skill Creator의 규격서 파싱 표준**: 이 프로토콜은 우리가 설계한 **Skill Creator 파이프라인의 1단계(Ingestion & Feature Extraction)**에서 TRM 문서로부터 레지스터 사양과 안전 계약을 자동 추출할 때 LLM이 준수해야 할 가장 강력한 도메인 지침으로 활용됩니다.
+##### [Vendor & Ecosystem 세부 아키텍처 특징]
+* **플래싱과 부팅 검증의 엄격한 분리 ([`qualcomm-linux/qcom-linux-skills`](https://github.com/qualcomm-linux/qcom-linux-skills))**: 보드 플래싱을 수행하는 변이 스킬(`qcom-flash-qdl`)과 시리얼 콘솔을 열어 정상 부팅 여부를 판정하는 검증 스킬(`qcom-boot-validate`)이 명확히 분리되어 있으며, 검증 스킬은 `exit 0` 종료 코드와 `BOOT-VALIDATION: PASS / FAIL` 펜스 태그를 반환합니다.
+* **엔터프라이즈 스킬 보안 스캔과 디지털 서명 거버넌스 ([`NVIDIA/skills`](https://github.com/NVIDIA/skills))**: 스킬 카드(Skill Card)에 책임자, 사용 목적, 위험 및 완화책을 명시하고, `SkillSpector` 정적 분석기와 `.oms.sig` 암호 서명을 통해 공식 승인된 스킬만 실행되도록 통제합니다.
+* **임베디드 디버거 프로브 및 IDE 런치 구성 자동화 ([`renesas/renesas-skills`](https://github.com/renesas/renesas-skills))**: J-Link, E2/E2Lite 등 벤더 고유 하드웨어 JTAG/SWD 디버거 프로브와 GDB 서버, RTOS 스레드 인지 디버깅을 위한 VS Code `.vscode/launch.json` 구성을 에이전트가 단일 스킬(`configure-renesas-debug`)로 완벽하게 자동 생성합니다.
+* **Yocto 릴리즈 인지 라우팅과 BitBake 태스크 트리아지 ([`Higangssh/yocto-agent-skills`](https://github.com/Higangssh/yocto-agent-skills))**: Yocto 릴리즈별(Dunfell, Kirkstone, Scarthgap 등) 문법 변경(`_append` vs `:append`)으로 인한 에이전트의 문법 환각을 방지하기 위해 `yocto-doc-router`가 해당 릴리즈의 공식 문서만 선별 공급하며, 수만 줄의 BitBake 로그 중 실패 구간만 정규화하여 추출합니다.
 
 ---
 
