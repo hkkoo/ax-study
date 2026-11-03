@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Android BSP의 Agentic Shift (2) — LangGraph와 MLflow 3 기반의 L4 Closed-Loop Bring-up 플랫폼 구현"
-description: "Android/Linux BSP 포팅과 브링업의 3단계(Sync-Build-Boot)를 계층적 상태 머신으로 모델링하고, LangGraph와 MLflow 3를 결합하여 수십 MB 빌드 로그와 연쇄적 수정을 자율 치유하는 100% 온프레미스 L4 Agentic Ops 환경을 직접 구축·검증한 실전 기록을 다룹니다."
+description: "Android/Linux BSP 포팅과 브링업의 3단계(Sync-Build-Boot)를 계층적 상태 머신으로 모델링하고, LangGraph와 MLflow 3를 결합하여 수십 MB 빌드 로그와 연쇄적 수정을 자율 치유하는 100% 온프레미스 L4 Agentic Ops 환경을 직접 구축·검증한 실전 기록과 즉시 재현 가능한 Handoff 설치 가이드를 다룹니다."
 date: 2026-11-03 20:15:00 +0900
 ---
 
@@ -195,3 +195,91 @@ BSP 브링업은 수십 번의 Retry가 일상적으로 발생합니다. 이때 
 이번 구현을 통해 우리는 **"결정론적 상태 머신(LangGraph) + 대용량 시스템 관측성(MLflow 3)"**의 조합이 Android BSP Bring-up이라는 초거대 시스템 소프트웨어 엔지니어링에 완벽하게 부합함을 입증했습니다.
 
 다음 단계에서는 완성된 부트 이미지를 실제 보드(DUT) 또는 가상 환경(Cuttlefish)에 Fastboot으로 플래싱하고, UART 시리얼 콘솔의 Early Hang / Kernel Panic을 진단하여 Stage 2로 롤백하는 **Stage 3 (Boot Check Outer Loop)**와, 민감한 레지스터 수정 시 개발자의 원클릭 승인을 대기하는 **LangGraph Checkpointer 기반의 Human-in-the-Loop(HITL)** 체계를 연결할 예정입니다.
+
+---
+
+## 8. 부록: 다른 AI 에이전트 및 환경을 위한 즉시 이식(Handoff) 가이드
+
+다른 LLM 코딩 에이전트(Claude Code, Codex, Cursor 등)나 엔지니어가 본 아키텍처를 새로운 환경에 즉시 재현·이식할 수 있도록 구체적인 설치 명령어와 핵심 보일러플레이트를 정리합니다.
+
+### 8.1 의존성 설치 및 가상환경 구성
+Python 3.10 이상 환경에서 별도의 Docker 없이 단일 가상환경으로 즉시 설치 가능합니다:
+
+```bash
+# 가상환경 생성 및 활성화
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 핵심 패키지 설치 (MLflow 3 Tracing 및 LangGraph)
+pip install --upgrade "mlflow>=3.17.0" "langgraph>=1.2.0" "langchain-core>=1.7.0" python-dotenv
+```
+
+### 8.2 MLflow 3 서버 구동 (100% 로컬 Self-Hosted)
+MLflow 3는 파일스토어(`./mlruns`) 대신 SQLite 데이터베이스 백엔드를 권장합니다. 특히 **외부 LAN IP나 원격 브라우저에서 접속 시 `403 Forbidden (Couldn't load traces)` 에러가 발생하지 않도록 보안 플래그(`--allowed-hosts`, `--cors-allowed-origins`)를 반드시 명시**해야 합니다:
+
+```bash
+# 아티팩트 디렉토리 생성
+mkdir -p ./artifacts
+
+# MLflow 3 서버 백그라운드 구동 (데몬 권장)
+mlflow server \
+  --host 0.0.0.0 \
+  --port 5000 \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./artifacts \
+  --allowed-hosts "*" \
+  --cors-allowed-origins "http://localhost:5000,http://127.0.0.1:5000"
+```
+
+* 구동 확인: `curl -I http://127.0.0.1:5000/` &rarr; `HTTP/1.1 200 OK`
+
+### 8.3 LangGraph + MLflow 3 연동 최소 보일러플레이트
+에이전트 스크립트 상단에 아래 설정을 선언하면, 별도의 콜백 코드 없이 LangGraph의 모든 노드 실행 흐름이 MLflow Traces로 자동 전송됩니다:
+
+```python
+import mlflow
+from langgraph.graph import StateGraph, START, END
+
+# 1. MLflow 추적 엔드포인트 바인딩
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_experiment("Android_BSP_Agentic_Ops")
+
+# 2. LangGraph 자동 계측 (1줄로 노드, 입출력, 지연 시간 자동 캡처)
+mlflow.langchain.autolog()
+
+# 3. 노드 내부에서 세부 메타데이터 및 아티팩트 등록 패턴
+def my_bsp_node(state):
+    span = mlflow.get_current_active_span()
+    if span:
+        # 모델 및 추론 강도 속성 기록
+        span.set_attribute("llm.model", "gemini-2.5-pro")
+        span.set_attribute("llm.reasoning_effort", "high")
+    
+    # 대용량 로그나 diff 패치 파일은 State에 담지 않고 Artifact로 저장
+    mlflow.log_artifact("path/to/build_failure.log", artifact_path="build_logs")
+    mlflow.log_artifact("path/to/patch.diff", artifact_path="patches")
+    
+    return {"status": "SUCCESS"}
+```
+
+### 8.4 2D Mermaid 아키텍처 다이어그램 자동 아티팩트화
+LangGraph의 워크플로우를 HTML 파일로 변환하여 MLflow Artifacts에 등록해 두면, UI의 Artifacts 탭에서 설치 없이 인터랙티브 2D 노드-엣지 그래프를 바로 볼 수 있습니다:
+
+```python
+mermaid_code = workflow.get_graph().draw_mermaid()
+html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({{startOnLoad:true}});</script>
+</head>
+<body>
+  <div class="mermaid">{mermaid_code}</div>
+</body>
+</html>"""
+
+with open("graph_view.html", "w") as f:
+    f.write(html_content)
+
+mlflow.log_artifact("graph_view.html", artifact_path="diagrams")
+```
