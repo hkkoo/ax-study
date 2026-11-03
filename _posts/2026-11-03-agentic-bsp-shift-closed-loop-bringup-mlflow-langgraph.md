@@ -1,8 +1,9 @@
 ---
 layout: post
-title: "Android BSP의 Agentic Shift (2) — LangGraph와 MLflow 3 기반의 L4 Closed-Loop Bring-up 플랫폼 구현"
+title: "Android BSP의 Agentic Shift (6) — LangGraph와 MLflow 3 기반의 L4 Closed-Loop Bring-up 플랫폼 구현"
 description: "Android/Linux BSP 포팅과 브링업의 3단계(Sync-Build-Boot)를 계층적 상태 머신으로 모델링하고, LangGraph와 MLflow 3를 결합하여 수십 MB 빌드 로그와 연쇄적 수정을 자율 치유하는 100% 온프레미스 L4 Agentic Ops 환경을 직접 구축·검증한 실전 기록과 즉시 재현 가능한 Handoff 설치 가이드를 다룹니다."
-date: 2026-11-03 20:15:00 +0900
+date: 2026-11-03 12:00:00 +0900
+permalink: /posts/agentic-bsp-shift-closed-loop-bringup-mlflow-langgraph/
 ---
 
 지난 글([Android BSP의 Agentic Shift (1) — 정의와 생태계 흐름](/posts/agentic-bsp-shift-definition-and-landscape/))에서 우리는 단순한 코드 작성을 돕는 L1~L2 수준을 넘어, 저장소 맥락을 파악하고(L3), 스스로 빌드-배포-테스트-진단-수정의 피드백 루프를 완결하는 **L4 Closed-Loop Execution**의 필요성과 5계층 스킬 표준 구조를 살펴보았습니다.

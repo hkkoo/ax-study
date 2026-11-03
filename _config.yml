@@ -4,6 +4,7 @@ url: https://hkkoo.github.io
 baseurl: /ax-study
 lang: ko
 timezone: Asia/Seoul
+future: true
 markdown: kramdown
 permalink: /posts/:title/
 exclude:

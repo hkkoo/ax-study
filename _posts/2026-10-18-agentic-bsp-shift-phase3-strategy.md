@@ -193,3 +193,4 @@ $$\text{순편익 (Net Benefit)} = \text{기존 방식 운영 총비용(A)} - \t
 3. **[제3편: 단계별 전환 전략 — Phase 1: L1에서 L3~L4로 도약하기 (호스트 빌드 & 정적 진단 폐루프)]({{ '/posts/agentic-bsp-shift-phase1-strategy/' | relative_url }})**
 4. **[제4편: 단계별 전환 전략 — Phase 2: L4에서 L5로 도약하기 (Virtual DUT & 런타임 관측성)]({{ '/posts/agentic-bsp-shift-phase2-strategy/' | relative_url }})**
 5. **[제5편: 단계별 전환 전략 — Phase 3: L5에서 L6로 (Physical DUT 보드 팜과 다중 에이전트 협업 체계)]({{ '/posts/agentic-bsp-shift-phase3-strategy/' | relative_url }})**
+6. **[제6편: 실전 구현 — LangGraph와 MLflow 3 기반의 L4 Closed-Loop Bring-up 플랫폼 구현]({{ '/posts/agentic-bsp-shift-closed-loop-bringup-mlflow-langgraph/' | relative_url }})**

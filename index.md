@@ -71,10 +71,10 @@ description: AI 학습과 개인 프로젝트, 업무 자동화 실험을 과정
     <p class="section-intro">기획 중인 실험과 별도로, 직접 만든 공개용 페이지를 모았습니다.</p>
     <div class="showcase-grid">
     <article class="showcase-card card-featured">
-      <div class="card-top"><span class="category-label label-automation">시스템 엔지니어링</span><span class="project-status status-done">완결 (전 6편: 0편~5편)</span></div>
+      <div class="card-top"><span class="category-label label-automation">시스템 엔지니어링</span><span class="project-status status-done">완결 (전 7편: 0편~6편)</span></div>
       <div><p class="project-number">AGENTIC BSP SHIFT</p><h3>Android BSP의 Agentic Shift</h3></div>
-      <p class="project-summary">Claude Workflow vs LangGraph 오케스트레이션 비교부터 L1(단순 자동완성)에서 L6(자율 폐루프)로 도약하기 위한 엔지니어링 전략. 5대 기둥, Phase 1·2·3 실전 로드맵, Physical DUT 보드 팜과 ROI 체계를 정리합니다.</p>
-      <div class="card-tags"><span>Android BSP</span><span>Agentic Engineering</span><span>Claude Workflow</span><span>LangGraph</span><span>5대 기둥</span><span>Phase 1·2·3 전략</span></div>
+      <p class="project-summary">Claude Workflow vs LangGraph 오케스트레이션 비교부터 L1(단순 자동완성)에서 L6(자율 폐루프)로 도약하기 위한 엔지니어링 전략, 5대 기둥, Phase 1·2·3 실전 로드맵, 그리고 LangGraph + MLflow 3 기반 L4 Closed-Loop Bring-up 실전 구현까지 정리합니다.</p>
+      <div class="card-tags"><span>Android BSP</span><span>Agentic Engineering</span><span>LangGraph</span><span>MLflow 3</span><span>L4 Closed-Loop</span><span>Bring-up 자가치유</span></div>
       <div class="card-bottom"><span>산출물 <b>BSP 자율화 전략 시리즈</b></span><a href="{{ '/posts/agentic-bsp-shift-frameworks-and-orchestration/' | relative_url }}">시리즈 보기 <span aria-hidden="true">↗</span></a></div>
     </article>
     <article class="showcase-card">
