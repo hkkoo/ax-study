@@ -197,6 +197,8 @@ BSP 브링업은 수십 번의 Retry가 일상적으로 발생합니다. 이때 
 
 다음 단계에서는 완성된 부트 이미지를 실제 보드(DUT) 또는 가상 환경(Cuttlefish)에 Fastboot으로 플래싱하고, UART 시리얼 콘솔의 Early Hang / Kernel Panic을 진단하여 Stage 2로 롤백하는 **Stage 3 (Boot Check Outer Loop)**와, 민감한 레지스터 수정 시 개발자의 원클릭 승인을 대기하는 **LangGraph Checkpointer 기반의 Human-in-the-Loop(HITL)** 체계를 연결할 예정입니다.
 
+이러한 4대 계층 아키텍처와 엔터프라이즈 관측성 플랫폼 3사(MLflow 3, Langfuse, LangSmith)의 전면 비교는 **[제7편: 4대 계층 아키텍처와 관측성 3파전](/posts/agentic-bsp-ops-4layer-architecture-and-observability/)**에서 계속 이어집니다.
+
 ---
 
 ## 8. 부록: 다른 AI 에이전트 및 환경을 위한 즉시 이식(Handoff) 가이드
